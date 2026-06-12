@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Calendar, Clock, MapPin, Users, Edit2, Trash2, CheckCircle, XCircle, Eye, EyeOff, Camera } from 'lucide-react';
 import { fetchMeetups, fetchReservations, updateReservationStatus, scanTicket } from '../services/api';
 import axios from 'axios';
+import { Html5Qrcode } from 'html5-qrcode';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://ebc-app-backend.onrender.com';
 const apiClient = axios.create({ baseURL: `${API_BASE}/api`, headers: { 'Content-Type': 'application/json' } });
