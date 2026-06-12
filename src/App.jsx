@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Sun, Moon } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import RightPanel from './components/RightPanel';
 import MobileNav from './components/MobileNav';
@@ -37,7 +38,46 @@ function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, curren
     <div className="app-layout">
       <Sidebar onLogout={onLogout} theme={theme} toggleTheme={toggleTheme} currentUser={currentUser} />
 
-      <div style={{ flex: 1, minWidth: 0, borderRight: '1px solid var(--border)' }}>
+      <div style={{ flex: 1, minWidth: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
+        {/* Mobile Top Header */}
+        <div className="mobile-header" style={{
+          display: 'none', // Overridden in media queries to flex
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 20px',
+          background: 'var(--glass)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--border)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 150
+        }}>
+          <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Perenti
+          </span>
+          <button 
+            onClick={toggleTheme}
+            style={{
+              border: 'none',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--text-primary)',
+              transition: 'all 0.2s',
+              outline: 'none'
+            }}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
+
         {children}
       </div>
 

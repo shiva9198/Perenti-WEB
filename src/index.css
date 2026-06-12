@@ -1016,6 +1016,7 @@ h5 { font-size: 1rem; }
   /* Hide desktop sidebar, show bottom nav */
   .sidebar { display: none !important; }
   .mobile-nav { display: block !important; }
+  .mobile-header { display: flex !important; }
 
   /* Main feed needs bottom padding so content isn't behind nav */
   .main-feed { padding-bottom: 90px !important; }
