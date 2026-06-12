@@ -99,9 +99,7 @@ export default function Profile() {
       </div>
 
       <div className="profile-hero">
-        <div className="avatar avatar-3xl">
-          <img src={member.avatar} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </div>
+        <Avatar src={member.avatar} name={member.name} size="3xl" />
         
         <div className="profile-header-info">
           <div className="profile-info-left">

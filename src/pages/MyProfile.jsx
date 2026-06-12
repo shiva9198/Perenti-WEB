@@ -21,9 +21,7 @@ export default function MyProfile({ currentUser }) {
       <div className="profile-cover"></div>
 
       <div className="profile-hero">
-        <div className="avatar avatar-3xl">
-          <img src={currentUser.avatar} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </div>
+        <Avatar src={currentUser.avatar} name={currentUser.name} size="3xl" />
         
         <div className="profile-header-info">
           <div className="profile-info-left">

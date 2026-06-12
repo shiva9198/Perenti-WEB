@@ -115,7 +115,7 @@ export default function Discover() {
             <div className="spotlight-content">
               {/* Left side: Banner image or Calendar block */}
               <div className="spotlight-left-section" style={{ position: 'relative', zIndex: 2, flexShrink: 0 }}>
-                {upcomingMeetup && upcomingMeetup.banner_url ? (
+                {upcomingMeetup && upcomingMeetup.banner_url && upcomingMeetup.banner_url.trim() !== '' ? (
                   <div style={{ position: 'relative' }}>
                     <div style={{ 
                       width: 280,
@@ -281,8 +281,17 @@ export default function Discover() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <div className="face-pile">
               {topContributors.slice(0, 5).map((m, i) => (
-                <Link key={m.id} to={`/profile/${m.id}`} className="avatar avatar-sm" style={{ borderRadius: '50%', border: '3px solid var(--bg)', marginLeft: i === 0 ? 0 : -10, zIndex: 10 - i, display: 'block' }}>
-                  <img src={m.avatar} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                <Link 
+                  key={m.id} 
+                  to={`/profile/${m.id}`} 
+                  style={{ marginLeft: i === 0 ? 0 : -10, zIndex: 10 - i, display: 'block', textDecoration: 'none' }}
+                >
+                  <Avatar 
+                    src={m.avatar} 
+                    name={m.name} 
+                    size="sm" 
+                    style={{ border: '3px solid var(--bg)', borderRadius: '50%' }}
+                  />
                 </Link>
               ))}
               <div className="face-pile-more">+{Math.max(0, topContributors.length - 5)}</div>

@@ -144,7 +144,7 @@ function MeetupForm({ onSave, initial, onCancel }) {
   );
 }
 
-function MeetupAdminCard({ meetup, onRefresh }) {
+function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
   const [reservations, setReservations] = useState([]);
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -182,7 +182,7 @@ function MeetupAdminCard({ meetup, onRefresh }) {
 
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, overflow: 'hidden' }}>
-      {meetup.banner_url && (
+      {meetup.banner_url && meetup.banner_url.trim() !== '' && (
         <img src={meetup.banner_url} alt={meetup.title} style={{ width: '100%', height: 140, objectFit: 'cover' }} />
       )}
       <div style={{ padding: '20px 24px' }}>
@@ -213,12 +213,22 @@ function MeetupAdminCard({ meetup, onRefresh }) {
           <div style={{ height: '100%', borderRadius: 999, background: 'var(--primary)', width: `${Math.min(100, (totalAttendees / (meetup.capacity || 1)) * 100)}%`, transition: 'width 0.5s ease' }} />
         </div>
 
-        {/* Expand attendees */}
-        <button onClick={() => setExpanded(e => !e)} className="btn btn-ghost btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0' }}>
-          <Users size={14} />
-          {expanded ? 'Hide' : 'Show'} {reservations.length} registration{reservations.length !== 1 ? 's' : ''}
-          {expanded ? <Eye size={14} /> : <EyeOff size={14} />}
-        </button>
+        {/* Actions row */}
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 12 }}>
+          <button onClick={() => setExpanded(e => !e)} className="btn btn-ghost btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0' }}>
+            <Users size={14} />
+            {expanded ? 'Hide' : 'Show'} {reservations.length} registration{reservations.length !== 1 ? 's' : ''}
+          </button>
+          
+          <button 
+            onClick={() => onScanClick(meetup.id, meetup.title)} 
+            className="btn btn-ghost btn-sm" 
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0', color: 'var(--primary)', fontWeight: 600 }}
+          >
+            <Camera size={14} />
+            Scan QR Check-In
+          </button>
+        </div>
 
         {expanded && (
           <div style={{ marginTop: 12, maxHeight: 400, overflowY: 'auto', overflowX: 'auto' }}>
@@ -404,11 +414,11 @@ function MeetupAdminCard({ meetup, onRefresh }) {
   );
 }
 
-function TicketScanner() {
+function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
   const [action, setAction] = useState('check_in'); // 'check_in' | 'check_out'
   const [manualId, setManualId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null); // { success: bool, message: str, name: str, event: str }
+  const [result, setResult] = useState(null); // { success: bool, message: str, name: str, event: str, isWrongEvent: bool }
   const [error, setError] = useState('');
   const [scanning, setScanning] = useState(false);
   
@@ -427,13 +437,18 @@ function TicketScanner() {
     try {
       const res = await scanTicket(ticketId, action);
       if (res.status === 'success') {
+        const isWrongEvent = scanMeetupId && res.reservation?.meetup_id !== scanMeetupId;
+        
         setResult({
           success: true,
-          message: res.message,
+          message: isWrongEvent 
+            ? `Warning: Checked in, but pass belongs to another event!`
+            : res.message,
           name: res.reservation?.user_name || 'Attendee',
           event: res.meetup?.title || 'Meetup',
           ticketId: ticketId,
-          status: res.reservation?.status
+          status: res.reservation?.status,
+          isWrongEvent: !!isWrongEvent
         });
         setManualId('');
       } else {
@@ -449,8 +464,14 @@ function TicketScanner() {
   const startScan = async () => {
     setError('');
     setResult(null);
+    if (qrCodeRef.current && qrCodeRef.current.isScanning) {
+      try {
+        await qrCodeRef.current.stop();
+      } catch (e) {
+        console.error("Error stopping scanner before restart:", e);
+      }
+    }
     try {
-      // Ensure element exists in DOM first
       setTimeout(async () => {
         try {
           const html5QrCode = new Html5Qrcode(scannerId);
@@ -473,7 +494,7 @@ function TicketScanner() {
           setError("Camera start failed: " + scanErr.message);
           setScanning(false);
         }
-      }, 100);
+      }, 150);
     } catch (err) {
       setError("Camera access error: " + err.message);
       setScanning(false);
@@ -492,12 +513,14 @@ function TicketScanner() {
   };
 
   useEffect(() => {
+    setAction('check_in');
+    startScan();
     return () => {
       if (qrCodeRef.current && qrCodeRef.current.isScanning) {
         qrCodeRef.current.stop().catch(err => console.error(err));
       }
     };
-  }, []);
+  }, [scanMeetupId]);
 
   const handleManualSubmit = (e) => {
     e.preventDefault();
@@ -507,6 +530,43 @@ function TicketScanner() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 480, margin: '12px auto 0', width: '100%' }}>
+      {/* Meetup Filter Banner */}
+      {scanMeetupId && (
+        <div style={{
+          background: 'var(--primary-glow)',
+          border: '1px solid rgba(3,212,124,0.2)',
+          borderRadius: 14,
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10
+        }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+            🎯 Scanning for: <strong>{scanMeetupTitle}</strong>
+          </div>
+          <button
+            onClick={onClearFilter}
+            style={{
+              border: 'none',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: '6px 12px',
+              fontSize: '0.75rem',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              fontWeight: 600,
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
+
       {/* Direction Action Segment */}
       <div style={{ display: 'flex', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 12, padding: 4 }}>
         <button
@@ -538,25 +598,40 @@ function TicketScanner() {
       {/* Result Display Card */}
       {result && (
         <div style={{
-          background: 'rgba(3,212,124,0.06)',
-          border: '1.5px solid #03d47c',
+          background: result.isWrongEvent ? 'rgba(242,87,48,0.06)' : 'rgba(3,212,124,0.06)',
+          border: `1.5px solid ${result.isWrongEvent ? 'var(--red)' : '#03d47c'}`,
           borderRadius: 16,
           padding: 20,
           textAlign: 'center',
           animation: 'fadeInUp 0.3s ease'
         }}>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(3,212,124,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: '#03d47c' }}>
-            <CheckCircle size={28} style={{ margin: 'auto' }} />
+          <div style={{ 
+            width: 44, 
+            height: 44, 
+            borderRadius: '50%', 
+            background: result.isWrongEvent ? 'rgba(242,87,48,0.15)' : 'rgba(3,212,124,0.15)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            margin: '0 auto 12px', 
+            color: result.isWrongEvent ? 'var(--red)' : '#03d47c' 
+          }}>
+            {result.isWrongEvent ? <XCircle size={28} style={{ margin: 'auto' }} /> : <CheckCircle size={28} style={{ margin: 'auto' }} />}
           </div>
           <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: 4 }}>
             {result.message}
           </h4>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: 8 }}>
-            <strong>{result.name}</strong> verified successfully.
+            <strong>{result.name}</strong> has been updated.
           </p>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-            Meetup: {result.event}
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+            Ticket Event: {result.event}
           </div>
+          {result.isWrongEvent && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--red)', fontWeight: 700, marginTop: 4 }}>
+              Active scanning session is restricted to: "{scanMeetupTitle}"
+            </div>
+          )}
           <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontFamily: 'monospace', marginTop: 4 }}>
             ID: {result.ticketId}
           </div>
@@ -727,6 +802,8 @@ export default function AdminPanel({ session }) {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [tab, setTab] = useState('meetups'); // 'meetups' | 'scan'
+  const [scanMeetupId, setScanMeetupId] = useState(null);
+  const [scanMeetupTitle, setScanMeetupTitle] = useState('');
 
   const isAdmin = session && (ADMIN_EMAILS.includes(session.email) || session.email?.includes('@ebc') || session.email?.includes('@perenti'));
 
@@ -839,13 +916,29 @@ export default function AdminPanel({ session }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {meetups.map(m => (
-                  <MeetupAdminCard key={m.id} meetup={m} onRefresh={load} />
+                  <MeetupAdminCard 
+                    key={m.id} 
+                    meetup={m} 
+                    onRefresh={load} 
+                    onScanClick={(meetupId, meetupTitle) => {
+                      setScanMeetupId(meetupId);
+                      setScanMeetupTitle(meetupTitle);
+                      setTab('scan');
+                    }}
+                  />
                 ))}
               </div>
             )}
           </>
         ) : (
-          <TicketScanner />
+          <TicketScanner 
+            scanMeetupId={scanMeetupId} 
+            scanMeetupTitle={scanMeetupTitle} 
+            onClearFilter={() => {
+              setScanMeetupId(null);
+              setScanMeetupTitle('');
+            }}
+          />
         )}
       </div>
 

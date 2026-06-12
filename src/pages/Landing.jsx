@@ -152,7 +152,7 @@ export default function Landing({ onLogin }) {
                 background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-md)',
               }}>
-                {nextMeetup.banner_url && (
+                {nextMeetup.banner_url && nextMeetup.banner_url.trim() !== '' && (
                   <img
                     src={nextMeetup.banner_url}
                     alt={nextMeetup.title}
