@@ -39,8 +39,8 @@ export default function Landing({ onLogin }) {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: 'var(--bg)', color: 'var(--text-primary)',
-      display: 'flex', flexDirection: 'column', overflowX: 'hidden',
+      height: '100dvh', background: 'var(--bg)', color: 'var(--text-primary)',
+      display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto',
       fontFamily: 'var(--font-sans)',
     }}>
 
