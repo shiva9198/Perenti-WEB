@@ -155,7 +155,7 @@ export default function App() {
       )}
       <MainLayout isLoggedIn={isLoggedIn} onLogout={logout} theme={theme} toggleTheme={toggleTheme} currentUser={currentUser}>
         <Routes>
-          <Route path="/" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Landing onLogin={login} />} />
+          <Route path="/" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Landing onLogin={login} theme={theme} toggleTheme={toggleTheme} />} />
           <Route path="/login" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Login onLogin={login} />} />
           <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
           <Route path="/directory" element={<ProtectedRoute><Directory /></ProtectedRoute>} />

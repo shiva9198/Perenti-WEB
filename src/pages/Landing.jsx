@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Calendar, Users } from 'lucide-react';
+import { ArrowRight, MapPin, Calendar, Users, Sun, Moon } from 'lucide-react';
 import { fetchMembers, fetchMeetups } from '../services/api';
 import Avatar from '../components/Avatar';
 
-export default function Landing({ onLogin }) {
+export default function Landing({ onLogin, theme, toggleTheme }) {
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [nextMeetup, setNextMeetup] = useState(null);
@@ -48,18 +48,41 @@ export default function Landing({ onLogin }) {
       <header style={{
         padding: '0 48px', height: 64,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        position: 'sticky', top: 0, background: 'var(--overlay)', backdropFilter: 'blur(20px)',
+        position: 'sticky', top: 0, background: 'var(--glass)', backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         zIndex: 100, borderBottom: '1px solid var(--border)',
       }}>
         {/* Text-only logo — the name IS the brand */}
         <span style={{
           fontFamily: 'var(--font-logo)', fontWeight: 800,
-          fontSize: '1.75rem', letterSpacing: '-0.03em', color: 'var(--text-primary)',
+          fontSize: 'clamp(1.35rem, 3.5vw, 1.6rem)', letterSpacing: '-0.02em', color: 'var(--text-primary)',
           lineHeight: 1,
         }}>
           Perenti
         </span>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button 
+            onClick={toggleTheme}
+            style={{
+              border: 'none',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--text-primary)',
+              transition: 'all 0.2s',
+              outline: 'none',
+              marginRight: 6
+            }}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <button className="btn btn-ghost btn-sm" onClick={goToLogin}>Sign In</button>
           <button
             className="btn btn-primary btn-sm"
@@ -384,12 +407,17 @@ export default function Landing({ onLogin }) {
       </main>
 
       {/* Giant Watermark */}
-      <div style={{ textAlign: 'center', overflow: 'hidden', lineHeight: 0.75, userSelect: 'none', pointerEvents: 'none' }}>
+      <div style={{ textAlign: 'center', overflow: 'visible', lineHeight: 0.8, userSelect: 'none', pointerEvents: 'none', margin: '60px 0 0' }}>
         <span style={{
-          fontSize: 'clamp(120px, 28vw, 420px)', fontWeight: 800,
-          fontFamily: 'var(--font-logo)', letterSpacing: '-0.04em',
-          color: 'var(--text-primary)', opacity: 0.03, display: 'block',
-          transform: 'translateY(15%)',
+          fontSize: 'clamp(120px, 28vw, 420px)',
+          fontWeight: 900,
+          fontFamily: 'var(--font-logo)',
+          letterSpacing: '-0.05em',
+          background: 'linear-gradient(180deg, var(--text-primary) 15%, transparent 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          opacity: 0.05,
+          display: 'block',
         }}>
           Perenti
         </span>
