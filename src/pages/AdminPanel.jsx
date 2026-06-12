@@ -148,6 +148,7 @@ function MeetupAdminCard({ meetup, onRefresh }) {
   const [reservations, setReservations] = useState([]);
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeQr, setActiveQr] = useState(null);
 
   const totalAttendees = reservations.reduce((s, r) => s + (r.quantity || 1), 0);
 
@@ -166,6 +167,16 @@ function MeetupAdminCard({ meetup, onRefresh }) {
       if (onRefresh) onRefresh();
     } catch (err) {
       alert('Failed to check in user: ' + (err?.response?.data?.detail || err?.message || err));
+    }
+  };
+
+  const handleCheckOut = async (reservationId) => {
+    try {
+      await updateReservationStatus(reservationId, 'confirmed');
+      loadReservations();
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      alert('Failed to uncheck user: ' + (err?.response?.data?.detail || err?.message || err));
     }
   };
 
@@ -220,7 +231,7 @@ function MeetupAdminCard({ meetup, onRefresh }) {
                     <th style={{ textAlign: 'left', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Attendee & Q&A</th>
                     <th style={{ textAlign: 'left', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Email</th>
                     <th style={{ textAlign: 'center', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Passes</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Ticket ID</th>
+                    <th style={{ textAlign: 'left', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Ticket ID / QR</th>
                     <th style={{ textAlign: 'center', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Status</th>
                     <th style={{ textAlign: 'right', padding: '8px 4px', color: 'var(--text-tertiary)', fontWeight: 600 }}>Action</th>
                   </tr>
@@ -262,7 +273,67 @@ function MeetupAdminCard({ meetup, onRefresh }) {
                         </td>
                         <td style={{ padding: '12px 4px', color: 'var(--text-secondary)', verticalAlign: 'top' }}>{r.user_email}</td>
                         <td style={{ padding: '12px 4px', textAlign: 'center', color: 'var(--primary)', fontWeight: 700, verticalAlign: 'top' }}>{r.quantity}</td>
-                        <td style={{ padding: '12px 4px', fontFamily: 'monospace', fontSize: '0.7rem', color: 'var(--text-tertiary)', verticalAlign: 'top' }}>{r.ticket_id}</td>
+                        <td style={{ padding: '12px 4px', verticalAlign: 'top', position: 'relative' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.ticket_id}`}
+                                alt="QR Code"
+                                style={{
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: 6,
+                                  cursor: 'pointer',
+                                  border: '1px solid var(--border-medium)',
+                                  background: '#fff',
+                                  display: 'block'
+                                }}
+                                title="Click to expand QR code"
+                                onClick={() => setActiveQr(activeQr === r.ticket_id ? null : r.ticket_id)}
+                              />
+                              <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-primary)' }}>{r.ticket_id}</span>
+                            </div>
+                            {activeQr === r.ticket_id && (
+                              <div style={{ 
+                                background: '#fff', 
+                                padding: 8, 
+                                borderRadius: 10, 
+                                border: '1px solid var(--border)', 
+                                position: 'absolute', 
+                                zIndex: 100, 
+                                boxShadow: 'var(--shadow-md)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 6,
+                                top: 40,
+                                left: 0
+                              }}>
+                                <img
+                                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.ticket_id}`}
+                                  alt="QR Code Expanded"
+                                  width="120"
+                                  height="120"
+                                />
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setActiveQr(null); }} 
+                                  style={{ 
+                                    fontSize: '0.65rem', 
+                                    padding: '2px 8px', 
+                                    border: 'none', 
+                                    background: 'var(--bg-elevated)', 
+                                    borderRadius: 4, 
+                                    cursor: 'pointer', 
+                                    color: 'var(--text-primary)',
+                                    fontWeight: 600
+                                  }}
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
                         <td style={{ padding: '12px 4px', textAlign: 'center', verticalAlign: 'top' }}>
                           <span style={{ 
                             fontSize: '0.65rem', 
@@ -297,9 +368,27 @@ function MeetupAdminCard({ meetup, onRefresh }) {
                               Check In
                             </button>
                           ) : (
-                            <span style={{ fontSize: '0.7rem', color: '#03d47c', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
-                              <CheckCircle size={12} /> Done
-                            </span>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                              <span style={{ fontSize: '0.7rem', color: '#03d47c', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+                                <CheckCircle size={12} /> Checked In
+                              </span>
+                              <button
+                                onClick={() => handleCheckOut(r.id)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: 'var(--red)',
+                                  fontSize: '0.65rem',
+                                  cursor: 'pointer',
+                                  padding: '2px 0',
+                                  textDecoration: 'underline',
+                                  fontWeight: 500,
+                                  outline: 'none'
+                                }}
+                              >
+                                Uncheck
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
