@@ -380,6 +380,7 @@ export default function Registrations({ currentUser }) {
                         justifyContent: 'center',
                         border: '1px solid var(--border)'
                       }}>
+ 
                         <img
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${res.ticket_id}`}
                           alt="Ticket Entry QR Code"

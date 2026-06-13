@@ -28,7 +28,7 @@ export function MemberCardHorizontal({ member }) {
         <div className="member-role" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.profession}</div>
         <div className="member-area" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.area}</div>
       </div>
-      <div style={{ flexShrink: 0, paddingLeft: 'var(--space-2)' }}>
+      <div style={{ flexShrink: 0, paddingLeft: 'var(--space-2)', maxWidth: 110, overflow: 'hidden' }}>
         {member.tags && member.tags[0] && <Tag label={member.tags[0]} />}
       </div>
     </Link>

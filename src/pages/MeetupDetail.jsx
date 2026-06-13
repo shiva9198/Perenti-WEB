@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Users, Share2, Check, X, ChevronDown, ChevronUp, AlertCircle, ChevronLeft, MessageCircle, Clock3 } from 'lucide-react';
 import Avatar from '../components/Avatar';
@@ -208,18 +209,23 @@ function RegistrationCapsule({ meetup, status, remaining, onAction }) {
     btnColor = 'var(--text-primary)';
   }
 
-  return (
+  // Portal to document.body so position:fixed is not broken
+  // by the PageTransition ancestor's CSS transform animation.
+  return createPortal(
     <div style={{
       position: 'fixed',
-      bottom: 0, left: 0, right: 0,
-      padding: '16px 20px calc(16px + env(safe-area-inset-bottom))',
-      background: 'linear-gradient(to top, var(--bg) 70%, transparent)',
-      pointerEvents: 'none',
+      bottom: 0,
+      left: 0,
+      right: 0,
       zIndex: 150,
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      background: 'linear-gradient(to top, var(--bg) 60%, transparent)',
       display: 'flex',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      pointerEvents: 'none',
     }}>
       <div style={{
+        margin: '12px 16px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
         borderRadius: 999,
@@ -229,10 +235,9 @@ function RegistrationCapsule({ meetup, status, remaining, onAction }) {
         justifyContent: 'space-between',
         width: '100%',
         maxWidth: 600,
-        boxShadow: 'var(--shadow-lg), 0 20px 40px rgba(0,0,0,0.08)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)',
+        gap: 16,
         pointerEvents: 'auto',
-        animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-        gap: 16
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -256,15 +261,17 @@ function RegistrationCapsule({ meetup, status, remaining, onAction }) {
             fontWeight: 700,
             whiteSpace: 'nowrap',
             flexShrink: 0,
-            opacity: disabled && status === 'EVENT_FULL' ? 0.6 : 1
+            opacity: disabled && status === 'EVENT_FULL' ? 0.6 : 1,
           }}
         >
           {btnText}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
+
 
 // ── Attendee Row ─────────────────────────────────────────────────────────────
 function AttendeeRow({ reservation }) {
@@ -995,8 +1002,8 @@ export default function MeetupDetail() {
           </div>
         </div>
 
-        {/* Extra padding for bottom capsule */}
-        <div style={{ height: 140 }} />
+        {/* Spacer so page content doesn't hide under fixed capsule */}
+        <div style={{ height: 'calc(96px + env(safe-area-inset-bottom, 0px))' }} />
       </div>
 
       <RegistrationCapsule 
