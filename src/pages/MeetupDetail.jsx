@@ -319,9 +319,15 @@ function RegisterModal({ meetup, session, onClose, onSuccess, initialPendingReco
   const [ticket, setTicket] = useState(null);
   const [pendingRecord, setPendingRecord] = useState(initialPendingRecord || null); // existing pending registration
 
-  // Pricing
+  // Pricing & Coupon states
+  const [coupon, setCoupon] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
   const BASE_PRICE = 422;
-  const netAmount = BASE_PRICE * qty;
+  const totalAmount = BASE_PRICE * qty;
+  const discount = couponApplied ? totalAmount : 0;
+  const netAmount = totalAmount - discount;
 
   const remaining = meetup?.remaining ?? meetup?.capacity ?? 60;
 
@@ -342,7 +348,15 @@ function RegisterModal({ meetup, session, onClose, onSuccess, initialPendingReco
     check();
   }, [session?.email, meetup?.id, initialPendingRecord]);
 
-
+  const handleApplyCoupon = () => {
+    if (coupon.trim().toLowerCase() === 'ebc42') {
+      setCouponApplied(true);
+      setCouponError('');
+    } else {
+      setCouponApplied(false);
+      setCouponError('Invalid coupon code');
+    }
+  };
 
   const openWhatsApp = (record) => {
     const msg = buildRegistrationMessage({
@@ -614,15 +628,42 @@ function RegisterModal({ meetup, session, onClose, onSuccess, initialPendingReco
                 </div>
               </div>
 
-              {/* Payment Summary */}
+              {/* Payment & Coupon Section */}
               <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Payment Summary</div>
 
               <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
+                {/* Coupon Input */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  <input
+                    value={coupon}
+                    onChange={e => setCoupon(e.target.value)}
+                    placeholder="Enter Coupon"
+                    style={{ flex: 1, padding: '9px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.85rem', color: 'var(--text-primary)', outline: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    className="btn btn-secondary btn-sm"
+                    style={{ padding: '0 16px', borderRadius: 8, fontSize: '0.8125rem' }}
+                  >
+                    Apply
+                  </button>
+                </div>
+                {couponError && <div style={{ color: 'var(--red)', fontSize: '0.75rem', marginBottom: 12, fontWeight: 500 }}>{couponError}</div>}
+                {couponApplied && <div style={{ color: 'var(--primary)', fontSize: '0.75rem', marginBottom: 12, fontWeight: 700 }}>✓ Code EBC42 applied successfully! 100% off.</div>}
+
+                {/* Pricing Summary rows */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
                     <span>Pass Ticket (₹422 x {qty})</span>
-                    <span>₹{netAmount}</span>
+                    <span>₹{totalAmount}</span>
                   </div>
+                  {couponApplied && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)', fontWeight: 600 }}>
+                      <span>Discount (100%)</span>
+                      <span>-₹{totalAmount}</span>
+                    </div>
+                  )}
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4, display: 'flex', justifyContent: 'space-between', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9375rem' }}>
                     <span>Total Amount</span>
                     <span>₹{netAmount}</span>
