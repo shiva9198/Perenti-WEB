@@ -119,7 +119,7 @@ function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, curren
         <RightPanel currentUser={currentUser} />
       )}
 
-      {!isMeetupDetailPage && <MobileNav />}
+      {!isMeetupDetailPage && <MobileNav currentUser={currentUser} />}
     </div>
   );
 }
