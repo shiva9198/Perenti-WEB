@@ -9,7 +9,7 @@ import { LinkedinIcon, InstagramIcon } from '../components/Icons';
 export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const isLoggedIn = localStorage.getItem('ebc_logged_in') === 'true';
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,13 +73,13 @@ export default function Profile() {
           zIndex: 100
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-logo)', letterSpacing: '-0.03em', color: '#fff' }}>Perenti</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-logo)', letterSpacing: '-0.03em', color: '#fff' }}>EBC</span>
             <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#fff' }}>
-              You're viewing a profile on Perenti. Connect with Hyderabad's top builders.
+              You're viewing a profile on EBC. Connect with Hyderabad's top builders.
             </span>
           </div>
           <button className="btn btn-primary btn-sm" onClick={handleJoinClick} style={{ boxShadow: 'none' }}>
-            Join Perenti Network
+            Join EBC Network
           </button>
         </div>
       )}
@@ -100,7 +100,7 @@ export default function Profile() {
 
       <div className="profile-hero">
         <Avatar src={member.avatar} name={member.name} size="3xl" />
-        
+
         <div className="profile-header-info">
           <div className="profile-info-left">
             <div className="profile-name">{member.name}</div>
@@ -108,12 +108,12 @@ export default function Profile() {
             <div className="profile-location">
               <MapPin size={13} /> {member.area}
             </div>
-            
+
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 24 }}>
               {member.tags && member.tags.map(t => <Tag key={t} label={t} />)}
             </div>
           </div>
-          
+
           <div className="profile-actions">
             {member.linkedIn && (
               <button className="btn btn-secondary btn-sm" onClick={() => openLink(member.linkedIn)}>
@@ -158,7 +158,7 @@ export default function Profile() {
             </div>
           </div>
         </div>
-        
+
         <div className="profile-side-column">
           {/* Work */}
           {(member.startupName || member.companyName) && (
@@ -187,7 +187,7 @@ export default function Profile() {
 
           {/* Why Joined */}
           <div className="profile-section-card animate-in animate-in-delay-2">
-            <h4>Why I Joined Perenti</h4>
+            <h4>Why I Joined EBC</h4>
             <p>{member.whyJoined}</p>
           </div>
         </div>

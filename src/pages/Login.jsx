@@ -65,7 +65,7 @@ export default function Login({ onLogin }) {
         position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.75rem', letterSpacing: '-0.03em', lineHeight: 1 }}>Perenti</span>
+          <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.75rem', letterSpacing: '-0.03em', lineHeight: 1 }}>EBC</span>
         </div>
         <button className="btn btn-ghost" style={{ fontSize: '0.875rem', padding: '6px 14px' }} onClick={() => navigate('/')}>
           Back to home
@@ -80,7 +80,7 @@ export default function Login({ onLogin }) {
           padding: '48px 40px', display: 'flex', flexDirection: 'column',
           borderRight: '1px solid var(--border)',
         }}>
-          <div style={{ fontFamily: 'var(--font-logo)', fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--primary)', marginBottom: 24 }}>Perenti</div>
+          <div style={{ fontFamily: 'var(--font-logo)', fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--primary)', marginBottom: 24 }}>EBC</div>
 
           {/* Tab switcher */}
           <div style={{ display: 'flex', gap: 0, marginBottom: 32, borderBottom: '1px solid var(--border)' }}>
@@ -102,7 +102,7 @@ export default function Login({ onLogin }) {
             fontSize: '1.75rem', fontWeight: 500, fontFamily: 'var(--font-display)',
             letterSpacing: '-0.03em', color: 'var(--text-primary)', marginBottom: 28, lineHeight: 1.2,
           }}>
-            {tab === 'signin' ? 'Welcome back.' : 'Join Perenti.'}
+            {tab === 'signin' ? 'Welcome back.' : 'Join EBC.'}
           </h1>
 
           {error && (
@@ -150,7 +150,7 @@ export default function Login({ onLogin }) {
           </form>
 
           <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', marginTop: 28, lineHeight: 1.6, textAlign: 'center' }}>
-            By continuing, you agree to Perenti's{' '}
+            By continuing, you agree to EBC's{' '}
             <span style={{ color: 'var(--primary)', cursor: 'pointer' }}>Terms of Service</span>{' '}
             and{' '}
             <span style={{ color: 'var(--primary)', cursor: 'pointer' }}>Privacy Policy</span>.
@@ -165,7 +165,7 @@ export default function Login({ onLogin }) {
           <div style={{ position: 'absolute', top: '20%', right: '-10%', width: '50%', height: '60%', background: 'radial-gradient(ellipse, rgba(3,212,124,0.08) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1, maxWidth: 520 }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
-              Perenti Smart Events, Seamless Outcomes
+              EBC Smart Events, Seamless Outcomes
             </div>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 500, fontFamily: 'var(--font-display)', letterSpacing: '-0.03em', marginBottom: 24, lineHeight: 1.15 }}>
               Hyderabad's most<br />curated professional<br />community.
@@ -197,7 +197,7 @@ export default function Login({ onLogin }) {
           color: 'var(--text-primary)', opacity: 0.03, display: 'block',
           transform: 'translateY(15%)',
         }}>
-          Perenti
+          EBC
         </span>
       </div>
     </div>

@@ -69,7 +69,7 @@ export default function OnboardingModal({ user, onComplete }) {
           </div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Complete Your Profile</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: 1.5 }}>
-            Welcome to Perenti! Tell the community a bit about yourself to unlock full access.
+            Welcome to EBC! Tell the community a bit about yourself to unlock full access.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export default function OnboardingModal({ user, onComplete }) {
             <label style={labelSt}>Full Name *</label>
             <input name="full_name" value={form.full_name} onChange={handleChange} style={inputSt} required />
           </div>
-          
+
           <div style={{ display: 'flex', gap: 16 }}>
             <div style={{ flex: 1 }}>
               <label style={labelSt}>Role / Profession *</label>

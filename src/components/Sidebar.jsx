@@ -3,24 +3,24 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, Users, User, Settings, Moon, Sun, Calendar, Shield, Ticket } from 'lucide-react';
 import Avatar from './Avatar';
 
-const ADMIN_EMAILS = ['admin@perenti.com', 'sreemadhav@gmail.com', 'madhav@ebc.com'];
+const ADMIN_EMAILS = ['admin@EBC.com', 'sreemadhav@gmail.com', 'madhav@ebc.com'];
 
 export default function Sidebar({ onLogout, theme, toggleTheme, currentUser }) {
   const navigate = useNavigate();
 
   const isAdmin = currentUser && (
     ADMIN_EMAILS.includes(currentUser.email) ||
-    currentUser.email?.includes('@perenti') ||
+    currentUser.email?.includes('@EBC') ||
     currentUser.email?.includes('@ebc')
   );
 
   const nav = [
-    { to: '/discover',      label: 'Discover',   icon: Home },
-    { to: '/directory',     label: 'Directory',  icon: Users },
-    { to: '/meetups',       label: 'Meetups',    icon: Calendar },
-    { to: '/registrations', label: 'My Passes',  icon: Ticket },
-    { to: '/profile/me',    label: 'My Profile', icon: User },
-    { to: '/settings',      label: 'Settings',   icon: Settings },
+    { to: '/discover', label: 'Discover', icon: Home },
+    { to: '/directory', label: 'Directory', icon: Users },
+    { to: '/meetups', label: 'Meetups', icon: Calendar },
+    { to: '/registrations', label: 'My Passes', icon: Ticket },
+    { to: '/profile/me', label: 'My Profile', icon: User },
+    { to: '/settings', label: 'Settings', icon: Settings },
     ...(isAdmin ? [{ to: '/admin', label: 'Admin', icon: Shield }] : []),
   ];
 
@@ -29,7 +29,7 @@ export default function Sidebar({ onLogout, theme, toggleTheme, currentUser }) {
       {/* Brand — text-only wordmark */}
       <div className="sidebar-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/discover')}>
         <div className="logo-wrap">
-          <span className="logo-text" style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.03em' }}>Perenti</span>
+          <span className="logo-text" style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-0.03em' }}>EBC</span>
         </div>
       </div>
 

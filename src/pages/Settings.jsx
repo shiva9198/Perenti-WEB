@@ -27,7 +27,7 @@ const MENU = [
     title: 'General',
     items: [
       { id: 'help', icon: HelpCircle, label: 'Help & Support' },
-      { id: 'about', icon: Info, label: 'About Perenti' },
+      { id: 'about', icon: Info, label: 'About EBC' },
     ],
   },
 ];
@@ -48,14 +48,14 @@ export default function Settings({ onLogout, currentUser }) {
     <div style={{ maxWidth: 640 }}>
       {/* Expensify-style dark card for profile fields */}
       <div style={{ background: 'var(--bg)', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)' }}>
-        
+
         {/* Card Header section */}
         <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>Public</div>
           <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
             These details are displayed on your public profile. Anyone can see them.
           </div>
-          
+
           <div style={{ marginTop: 24, position: 'relative', display: 'inline-block' }}>
             <div style={{ padding: 4, background: 'var(--bg-elevated)', borderRadius: '50%' }}>
               <Avatar src={currentUser.avatar} name={currentUser.name} size="xl" />
@@ -110,13 +110,13 @@ export default function Settings({ onLogout, currentUser }) {
 
   return (
     <div style={{ display: 'flex', height: '100%', background: 'var(--bg-card)' }}>
-      
+
       {/* LEFT PANE - Navigation Menu */}
       <div style={{
         width: 320, flexShrink: 0, borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column', overflowY: 'auto'
       }}>
-        
+
         {/* Left header */}
         <div style={{ padding: '24px', fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
           Account
@@ -147,7 +147,7 @@ export default function Settings({ onLogout, currentUser }) {
               }}>
                 {section.title}
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {section.items.map(item => {
                   const isActive = activeTab === item.id;
@@ -162,8 +162,8 @@ export default function Settings({ onLogout, currentUser }) {
                         background: isActive ? 'var(--bg-elevated)' : 'transparent',
                         position: 'relative'
                       }}
-                      onMouseEnter={e => { if(!isActive) e.currentTarget.style.background = 'var(--bg-hover)' }}
-                      onMouseLeave={e => { if(!isActive) e.currentTarget.style.background = 'transparent' }}
+                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-hover)' }}
+                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
                     >
                       {isActive && (
                         <div style={{
@@ -223,7 +223,7 @@ export default function Settings({ onLogout, currentUser }) {
 
       {/* RIGHT PANE - Detailed Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        
+
         {/* Right header */}
         <div style={{
           height: 80, display: 'flex', alignItems: 'center', gap: 16,

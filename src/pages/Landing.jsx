@@ -58,10 +58,10 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
           fontSize: 'clamp(1.35rem, 3.5vw, 1.6rem)', letterSpacing: '-0.02em', color: 'var(--text-primary)',
           lineHeight: 1,
         }}>
-          Perenti
+          EBC
         </span>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button 
+          <button
             onClick={toggleTheme}
             style={{
               border: 'none',
@@ -130,7 +130,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
               fontSize: '1rem', color: 'var(--text-secondary)',
               lineHeight: 1.75, marginBottom: 36, maxWidth: 460,
             }}>
-              Perenti brings together founders, investors, and professionals
+              EBC brings together founders, investors, and professionals
               through curated monthly meetups and a verified member directory.
             </p>
 
@@ -212,7 +212,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
                     style={{ width: '100%', justifyContent: 'center', borderRadius: 12, fontWeight: 600 }}
                     onClick={goToLogin}
                   >
-                    Register for Free Pass
+                    Register for Pass
                   </button>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
                   fontWeight: 500, color: 'var(--text-primary)', marginBottom: 10,
                   letterSpacing: '-0.025em',
                 }}>
-                  Perenti Community
+                  EBC Community
                 </div>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24 }}>
                   Monthly meetups. Curated network. Real outcomes.
@@ -331,7 +331,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
             {[
               {
                 step: '01',
-                title: 'Join Perenti',
+                title: 'Join EBC',
                 desc: 'Sign up with email and password. Your profile goes live in the member directory immediately.',
               },
               {
@@ -382,7 +382,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
               fontSize: 'clamp(1.6rem, 3.5vw, 2.25rem)', fontWeight: 500,
               color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: 14,
             }}>
-              Ready to join Perenti?
+              Ready to join EBC?
             </div>
             <p style={{
               fontSize: '0.9375rem', color: 'var(--text-secondary)',
@@ -419,7 +419,7 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
           opacity: 0.05,
           display: 'block',
         }}>
-          Perenti
+          EBC
         </span>
       </div>
 
@@ -430,11 +430,11 @@ export default function Landing({ onLogin, theme, toggleTheme }) {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
         }}>
           <span style={{
-          fontFamily: 'var(--font-sans)', fontWeight: 700,
-          fontSize: '1.2rem', color: 'var(--text-secondary)', letterSpacing: '-0.03em',
-        }}>
-          Perenti
-        </span>
+            fontFamily: 'var(--font-sans)', fontWeight: 700,
+            fontSize: '1.2rem', color: 'var(--text-secondary)', letterSpacing: '-0.03em',
+          }}>
+            EBC
+          </span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
             <MapPin size={12} /> Hyderabad, India
           </div>

@@ -3,6 +3,59 @@ import { fetchUserReservations } from '../services/api';
 import { Calendar, MapPin, Clock, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+function AttendeeBadgeQR({ reservation }) {
+  let reason = 'Networking';
+  try {
+    const answersObj = JSON.parse(reservation.answers || '{}');
+    reason = answersObj.lookingFor || answersObj.building || answersObj.role || 'Networking';
+  } catch (e) {}
+
+  const qrData = JSON.stringify({
+    name: reservation.user_name || 'Attendee',
+    passes: reservation.quantity || 1,
+    reason: reason
+  });
+
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}&color=061b0f&bgcolor=ffffff`;
+
+  const downloadQR = async () => {
+    try {
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `attendee-pass.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download QR code', error);
+    }
+  };
+
+  return (
+    <div style={{ padding: '20px 28px', borderTop: '1px solid var(--border)', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+      <div style={{ flex: 1, minWidth: 200 }}>
+        <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Attendee Pass</h4>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>Show this public QR pass to organizers.</p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.85rem', background: 'var(--bg-elevated)', padding: '12px', borderRadius: 8, border: '1px solid var(--border)' }}>
+          <div><strong style={{ color: 'var(--text-secondary)' }}>Name:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{reservation.user_name || 'Attendee'}</span></div>
+          <div><strong style={{ color: 'var(--text-secondary)' }}>Passes:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{reservation.quantity || 1}</span></div>
+          <div><strong style={{ color: 'var(--text-secondary)' }}>Reason:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{reason}</span></div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <img src={qrUrl} alt="Attendee Pass QR" style={{ width: 100, height: 100, borderRadius: 8, border: '1px solid var(--border)' }} />
+        <button onClick={downloadQR} type="button" className="btn btn-secondary btn-sm">Download QR</button>
+      </div>
+    </div>
+  );
+}
+
 export default function Registrations({ currentUser }) {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +87,7 @@ export default function Registrations({ currentUser }) {
       <div className="page-header">
         <div className="page-header-inner">
           <div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Perenti Wallet</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>EBC Wallet</div>
             <div className="page-title gradient-text">My Entry Passes</div>
           </div>
         </div>
@@ -61,8 +114,8 @@ export default function Registrations({ currentUser }) {
               const isCheckedIn = res.status === 'checked_in';
 
               return (
-                <div 
-                  key={res.id} 
+                <div
+                  key={res.id}
                   style={{
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border)',
@@ -99,13 +152,13 @@ export default function Registrations({ currentUser }) {
                     {/* Event Details Section */}
                     <div style={{ flex: '1 1 320px', padding: '24px 28px', minWidth: 260 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ 
-                          fontSize: '0.65rem', 
-                          fontWeight: 700, 
-                          padding: '4px 10px', 
-                          borderRadius: 999, 
-                          background: isCheckedIn ? 'rgba(3,212,124,0.1)' : 'var(--primary-glow)', 
-                          color: isCheckedIn ? '#03d47c' : 'var(--primary)', 
+                        <span style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: 999,
+                          background: isCheckedIn ? 'rgba(3,212,124,0.1)' : 'var(--primary-glow)',
+                          color: isCheckedIn ? '#03d47c' : 'var(--primary)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
                           border: `1px solid ${isCheckedIn ? 'rgba(3,212,124,0.2)' : 'rgba(3,212,124,0.1)'}`,
@@ -121,11 +174,11 @@ export default function Registrations({ currentUser }) {
                         </span>
                       </div>
 
-                      <h3 style={{ 
-                        fontFamily: 'var(--font-display)', 
-                        fontSize: '1.35rem', 
-                        fontWeight: 700, 
-                        color: 'var(--text-primary)', 
+                      <h3 style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '1.35rem',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
                         marginBottom: 16,
                         lineHeight: 1.25
                       }}>
@@ -168,12 +221,12 @@ export default function Registrations({ currentUser }) {
                     </div>
 
                     {/* QR Code / Ticket ID Section */}
-                    <div style={{ 
-                      flex: '1 1 180px', 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
+                    <div style={{
+                      flex: '1 1 180px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       padding: '24px 28px',
                       background: 'var(--bg-elevated)',
                       borderTopRightRadius: 20,
@@ -190,17 +243,17 @@ export default function Registrations({ currentUser }) {
                         justifyContent: 'center',
                         border: '1px solid var(--border)'
                       }}>
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${res.ticket_id}`} 
-                          alt="Ticket Entry QR Code" 
-                          width="120" 
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${res.ticket_id}`}
+                          alt="Ticket Entry QR Code"
+                          width="120"
                           height="120"
                           style={{ display: 'block' }}
                         />
                       </div>
-                      <div style={{ 
-                        fontFamily: 'monospace', 
-                        fontSize: '0.75rem', 
+                      <div style={{
+                        fontFamily: 'monospace',
+                        fontSize: '0.75rem',
                         color: 'var(--text-secondary)',
                         background: 'var(--bg)',
                         padding: '4px 10px',
@@ -216,6 +269,7 @@ export default function Registrations({ currentUser }) {
                       </div>
                     </div>
                   </div>
+                  <AttendeeBadgeQR reservation={res} />
                 </div>
               );
             })}

@@ -22,7 +22,7 @@ export default function MyProfile({ currentUser }) {
 
       <div className="profile-hero">
         <Avatar src={currentUser.avatar} name={currentUser.name} size="3xl" />
-        
+
         <div className="profile-header-info">
           <div className="profile-info-left">
             <div className="profile-name">{currentUser.name}</div>
@@ -31,7 +31,7 @@ export default function MyProfile({ currentUser }) {
               <MapPin size={13} /> {currentUser.area || 'Hyderabad, India'}
             </div>
           </div>
-          
+
           <div className="profile-actions">
             <button className="btn btn-primary">
               <TrendingUp size={16} /> Complete Your Profile
@@ -59,7 +59,7 @@ export default function MyProfile({ currentUser }) {
               <LottiePlayer src="/business_team.json" style={{ width: 100, height: 100, flexShrink: 0 }} />
               <div>
                 <div style={{ fontWeight: 500, fontSize: '1.25rem', fontFamily: 'var(--font-display)', color: 'var(--text-primary)', marginBottom: 8 }}>
-                  You're part of Perenti!
+                  You're part of EBC!
                 </div>
                 <div style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                   Every member gets a profile. Turn yourself into a discoverable person for the Hyderabad startup community.

@@ -54,7 +54,7 @@ function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, curren
           zIndex: 150
         }}>
           <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 800, fontSize: '1.25rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Perenti
+            EBC
           </span>
           <button 
             onClick={toggleTheme}

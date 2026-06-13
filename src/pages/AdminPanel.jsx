@@ -8,7 +8,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://ebc-app-backend.o
 const apiClient = axios.create({ baseURL: `${API_BASE}/api`, headers: { 'Content-Type': 'application/json' } });
 
 // Admin emails — anyone in this list gets admin access
-const ADMIN_EMAILS = ['admin@perenti.com', 'sreemadhav@gmail.com', 'madhav@ebc.com'];
+const ADMIN_EMAILS = ['admin@EBC.com', 'sreemadhav@gmail.com', 'madhav@ebc.com'];
 
 function StatCard({ label, value, color = 'var(--primary)' }) {
   return (
@@ -32,14 +32,14 @@ function MeetupForm({ onSave, initial, onCancel }) {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     setUploadingImage(true);
     setError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'ebc_avatars');
-      
+
       const res = await axios.post('https://api.cloudinary.com/v1_1/dcemw61tu/image/upload', formData);
       setForm(f => ({ ...f, banner_url: res.data.secure_url }));
     } catch (err) {
@@ -75,7 +75,7 @@ function MeetupForm({ onSave, initial, onCancel }) {
       <div className="admin-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Event Title *</label>
-          <input required value={form.title} onChange={e => set('title', e.target.value)} placeholder="Perenti 29th Meetup" style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+          <input required value={form.title} onChange={e => set('title', e.target.value)} placeholder="EBC 29th Meetup" style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Capacity</label>
@@ -99,20 +99,20 @@ function MeetupForm({ onSave, initial, onCancel }) {
       <div>
         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Banner Image</label>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleImageUpload} 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
             disabled={uploadingImage}
-            style={{ flex: 1, ...inputSt, padding: '8px 14px' }} 
+            style={{ flex: 1, ...inputSt, padding: '8px 14px' }}
           />
-          <input 
-            value={form.banner_url} 
-            onChange={e => set('banner_url', e.target.value)} 
-            placeholder="...or paste URL here" 
-            style={{ flex: 2, ...inputSt }} 
-            onFocus={e => e.target.style.borderColor = 'var(--primary)'} 
-            onBlur={e => e.target.style.borderColor = 'var(--border)'} 
+          <input
+            value={form.banner_url}
+            onChange={e => set('banner_url', e.target.value)}
+            placeholder="...or paste URL here"
+            style={{ flex: 2, ...inputSt }}
+            onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+            onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
         </div>
         {uploadingImage && <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: 6, fontWeight: 500 }}>Uploading image to Cloudinary...</div>}
@@ -220,10 +220,10 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
             <Users size={14} />
             {expanded ? 'Hide' : 'Show'} {reservations.length} registration{reservations.length !== 1 ? 's' : ''}
           </button>
-          
-          <button 
-            onClick={() => onScanClick(meetup.id, meetup.title)} 
-            className="btn btn-ghost btn-sm" 
+
+          <button
+            onClick={() => onScanClick(meetup.id, meetup.title)}
+            className="btn btn-ghost btn-sm"
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0', color: 'var(--primary)', fontWeight: 600 }}
           >
             <Camera size={14} />
@@ -262,16 +262,16 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
                         <td style={{ padding: '12px 4px', fontWeight: 600, color: 'var(--text-primary)', verticalAlign: 'top' }}>
                           <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.user_name || '—'}</div>
                           {hasAnswers ? (
-                            <div style={{ 
-                              fontSize: '0.725rem', 
-                              color: 'var(--text-secondary)', 
-                              display: 'flex', 
-                              flexDirection: 'column', 
-                              gap: 2, 
-                              background: 'var(--bg-elevated)', 
-                              padding: '6px 10px', 
-                              borderRadius: 8, 
-                              marginTop: 6, 
+                            <div style={{
+                              fontSize: '0.725rem',
+                              color: 'var(--text-secondary)',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 2,
+                              background: 'var(--bg-elevated)',
+                              padding: '6px 10px',
+                              borderRadius: 8,
+                              marginTop: 6,
                               fontWeight: 'normal',
                               border: '1px solid var(--border-medium)',
                               maxWidth: 240
@@ -305,13 +305,13 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
                               <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-primary)' }}>{r.ticket_id}</span>
                             </div>
                             {activeQr === r.ticket_id && (
-                              <div style={{ 
-                                background: '#fff', 
-                                padding: 8, 
-                                borderRadius: 10, 
-                                border: '1px solid var(--border)', 
-                                position: 'absolute', 
-                                zIndex: 100, 
+                              <div style={{
+                                background: '#fff',
+                                padding: 8,
+                                borderRadius: 10,
+                                border: '1px solid var(--border)',
+                                position: 'absolute',
+                                zIndex: 100,
                                 boxShadow: 'var(--shadow-md)',
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -326,15 +326,15 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
                                   width="120"
                                   height="120"
                                 />
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); setActiveQr(null); }} 
-                                  style={{ 
-                                    fontSize: '0.65rem', 
-                                    padding: '2px 8px', 
-                                    border: 'none', 
-                                    background: 'var(--bg-elevated)', 
-                                    borderRadius: 4, 
-                                    cursor: 'pointer', 
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setActiveQr(null); }}
+                                  style={{
+                                    fontSize: '0.65rem',
+                                    padding: '2px 8px',
+                                    border: 'none',
+                                    background: 'var(--bg-elevated)',
+                                    borderRadius: 4,
+                                    cursor: 'pointer',
                                     color: 'var(--text-primary)',
                                     fontWeight: 600
                                   }}
@@ -346,13 +346,13 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
                           </div>
                         </td>
                         <td style={{ padding: '12px 4px', textAlign: 'center', verticalAlign: 'top' }}>
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            fontWeight: 700, 
-                            padding: '3px 8px', 
-                            borderRadius: 999, 
-                            background: r.status === 'checked_in' ? 'rgba(3,212,124,0.1)' : 'var(--primary-glow)', 
-                            color: r.status === 'checked_in' ? '#03d47c' : 'var(--primary)', 
+                          <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: 999,
+                            background: r.status === 'checked_in' ? 'rgba(3,212,124,0.1)' : 'var(--primary-glow)',
+                            color: r.status === 'checked_in' ? '#03d47c' : 'var(--primary)',
                             textTransform: 'uppercase',
                             border: `1px solid ${r.status === 'checked_in' ? 'rgba(3,212,124,0.2)' : 'rgba(3,212,124,0.1)'}`
                           }}>
@@ -422,7 +422,7 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
   const [result, setResult] = useState(null); // { success: bool, message: str, name: str, event: str, isWrongEvent: bool }
   const [error, setError] = useState('');
   const [scanning, setScanning] = useState(false);
-  
+
   const qrCodeRef = useRef(null);
   const scannerId = "admin-qr-reader";
 
@@ -439,10 +439,10 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
       const res = await scanTicket(ticketId, action);
       if (res.status === 'success') {
         const isWrongEvent = scanMeetupId && res.reservation?.meetup_id !== scanMeetupId;
-        
+
         setResult({
           success: true,
-          message: isWrongEvent 
+          message: isWrongEvent
             ? `Warning: Checked in, but pass belongs to another event!`
             : res.message,
           name: res.reservation?.user_name || 'Attendee',
@@ -489,7 +489,7 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
               }
             },
             handleScanSuccess,
-            (errorMessage) => {}
+            (errorMessage) => { }
           );
         } catch (scanErr) {
           setError("Camera start failed: " + scanErr.message);
@@ -606,16 +606,16 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
           textAlign: 'center',
           animation: 'fadeInUp 0.3s ease'
         }}>
-          <div style={{ 
-            width: 44, 
-            height: 44, 
-            borderRadius: '50%', 
-            background: result.isWrongEvent ? 'rgba(242,87,48,0.15)' : 'rgba(3,212,124,0.15)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            margin: '0 auto 12px', 
-            color: result.isWrongEvent ? 'var(--red)' : '#03d47c' 
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            background: result.isWrongEvent ? 'rgba(242,87,48,0.15)' : 'rgba(3,212,124,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 12px',
+            color: result.isWrongEvent ? 'var(--red)' : '#03d47c'
           }}>
             {result.isWrongEvent ? <XCircle size={28} style={{ margin: 'auto' }} /> : <CheckCircle size={28} style={{ margin: 'auto' }} />}
           </div>
@@ -636,9 +636,9 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
           <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontFamily: 'monospace', marginTop: 4 }}>
             ID: {result.ticketId}
           </div>
-          <button 
-            onClick={() => { setResult(null); startScan(); }} 
-            className="btn btn-primary btn-sm" 
+          <button
+            onClick={() => { setResult(null); startScan(); }}
+            className="btn btn-primary btn-sm"
             style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}
           >
             Scan Next Pass
@@ -666,16 +666,16 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
             {error}
           </p>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button 
-              onClick={() => { setError(''); startScan(); }} 
-              className="btn btn-primary btn-sm" 
+            <button
+              onClick={() => { setError(''); startScan(); }}
+              className="btn btn-primary btn-sm"
               style={{ flex: 1, justifyContent: 'center' }}
             >
               Retry Camera Scan
             </button>
-            <button 
-              onClick={() => setError('')} 
-              className="btn btn-secondary btn-sm" 
+            <button
+              onClick={() => setError('')}
+              className="btn btn-secondary btn-sm"
               style={{ flex: 1, justifyContent: 'center' }}
             >
               Clear
@@ -701,30 +701,30 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Pass QR Scanner</span>
           </div>
 
-          <div 
-            id={scannerId} 
-            style={{ 
-              width: '100%', 
-              background: '#000', 
-              borderRadius: 12, 
-              overflow: 'hidden', 
-              aspectRatio: '1/1', 
+          <div
+            id={scannerId}
+            style={{
+              width: '100%',
+              background: '#000',
+              borderRadius: 12,
+              overflow: 'hidden',
+              aspectRatio: '1/1',
               maxHeight: 280,
               maxWidth: 280,
               display: scanning ? 'block' : 'none'
-            }} 
+            }}
           />
 
           {!scanning && (
-            <div style={{ 
-              width: '100%', 
-              aspectRatio: '1/1', 
-              maxHeight: 280, 
-              maxWidth: 280, 
-              background: 'var(--bg-elevated)', 
-              borderRadius: 12, 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              width: '100%',
+              aspectRatio: '1/1',
+              maxHeight: 280,
+              maxWidth: 280,
+              background: 'var(--bg-elevated)',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
               border: '1.5px dashed var(--border-strong)',
               marginBottom: 16
@@ -738,19 +738,19 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
 
           <div style={{ width: '100%', marginTop: 16 }}>
             {scanning ? (
-              <button 
-                type="button" 
-                onClick={stopScan} 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                onClick={stopScan}
+                className="btn btn-secondary"
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 Stop Camera Scan
               </button>
             ) : (
-              <button 
-                type="button" 
-                onClick={startScan} 
-                className="btn btn-primary" 
+              <button
+                type="button"
+                onClick={startScan}
+                className="btn btn-primary"
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 Start Camera Scan
@@ -783,9 +783,9 @@ function TicketScanner({ scanMeetupId, scanMeetupTitle, onClearFilter }) {
                 flex: 1, padding: '10px 14px', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 10, fontSize: '0.9rem', color: 'var(--text-primary)', outline: 'none'
               }}
             />
-            <button 
-              type="submit" 
-              disabled={loading || !manualId.trim()} 
+            <button
+              type="submit"
+              disabled={loading || !manualId.trim()}
               className="btn btn-primary"
               style={{ padding: '0 16px', minHeight: 'auto' }}
             >
@@ -806,7 +806,7 @@ export default function AdminPanel({ session }) {
   const [scanMeetupId, setScanMeetupId] = useState(null);
   const [scanMeetupTitle, setScanMeetupTitle] = useState('');
 
-  const isAdmin = session && (ADMIN_EMAILS.includes(session.email) || session.email?.includes('@ebc') || session.email?.includes('@perenti'));
+  const isAdmin = session && (ADMIN_EMAILS.includes(session.email) || session.email?.includes('@ebc') || session.email?.includes('@EBC'));
 
   const load = () => {
     setLoading(true);
@@ -837,7 +837,7 @@ export default function AdminPanel({ session }) {
       <div className="page-header">
         <div className="page-header-inner">
           <div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Perenti Admin</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>EBC Admin</div>
             <div className="page-title gradient-text">Event Panel</div>
           </div>
           <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -917,10 +917,10 @@ export default function AdminPanel({ session }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {meetups.map(m => (
-                  <MeetupAdminCard 
-                    key={m.id} 
-                    meetup={m} 
-                    onRefresh={load} 
+                  <MeetupAdminCard
+                    key={m.id}
+                    meetup={m}
+                    onRefresh={load}
                     onScanClick={(meetupId, meetupTitle) => {
                       setScanMeetupId(meetupId);
                       setScanMeetupTitle(meetupTitle);
@@ -932,9 +932,9 @@ export default function AdminPanel({ session }) {
             )}
           </>
         ) : (
-          <TicketScanner 
-            scanMeetupId={scanMeetupId} 
-            scanMeetupTitle={scanMeetupTitle} 
+          <TicketScanner
+            scanMeetupId={scanMeetupId}
+            scanMeetupTitle={scanMeetupTitle}
             onClearFilter={() => {
               setScanMeetupId(null);
               setScanMeetupTitle('');

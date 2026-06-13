@@ -4,6 +4,60 @@ import { Calendar, Clock, MapPin, Users, Share2, Check, X, ChevronDown, ChevronU
 import Avatar from '../components/Avatar';
 import { fetchMeetup, fetchReservations, createReservation, getSession } from '../services/api';
 
+// ── Attendee Badge QR ────────────────────────────────────────────────────────
+function AttendeeBadgeQR({ ticket }) {
+  let reason = 'Networking';
+  try {
+    const answersObj = JSON.parse(ticket.answers || '{}');
+    reason = answersObj.lookingFor || answersObj.building || answersObj.role || 'Networking';
+  } catch (e) {}
+
+  const qrData = JSON.stringify({
+    name: ticket.user_name || 'Attendee',
+    passes: ticket.quantity || 1,
+    reason: reason
+  });
+
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}&color=061b0f&bgcolor=ffffff`;
+
+  const downloadQR = async () => {
+    try {
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `attendee-pass.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download QR code', error);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: 24, padding: 20, background: 'var(--bg-elevated)', borderRadius: 16, border: '1px solid var(--border)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Attendee Pass</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Show this pass to event organizers.</p>
+      </div>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, background: 'var(--bg-card)', padding: '16px', borderRadius: 12, border: '1px solid var(--border)', textAlign: 'left' }}>
+        <div style={{ fontSize: '0.85rem' }}><strong style={{ color: 'var(--text-secondary)' }}>Name:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{ticket.user_name || 'Attendee'}</span></div>
+        <div style={{ fontSize: '0.85rem' }}><strong style={{ color: 'var(--text-secondary)' }}>Passes:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{ticket.quantity || 1}</span></div>
+        <div style={{ fontSize: '0.85rem' }}><strong style={{ color: 'var(--text-secondary)' }}>Reason:</strong> <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{reason}</span></div>
+      </div>
+
+      <div>
+        <img src={qrUrl} alt="Attendee Pass QR" style={{ width: 150, height: 150, borderRadius: 12, border: '1px solid var(--border)', margin: '0 auto 16px', display: 'block' }} />
+        <button onClick={downloadQR} type="button" className="btn btn-secondary btn-sm" style={{ margin: '0 auto', display: 'flex', justifyContent: 'center' }}>Download QR Pass</button>
+      </div>
+    </div>
+  );
+}
+
 // ── QR Ticket Stub ───────────────────────────────────────────────────────────
 function TicketStub({ ticket, meetup }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(ticket.ticket_id)}&color=061b0f&bgcolor=ffffff`;
@@ -14,13 +68,13 @@ function TicketStub({ ticket, meetup }) {
     }}>
       {/* Header band */}
       <div style={{ background: 'var(--primary)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.85rem', color: '#061B0F', letterSpacing: '-0.01em' }}>perenti pass</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.85rem', color: '#061B0F', letterSpacing: '-0.01em' }}>EBC pass</span>
         <span style={{ background: 'rgba(6,27,15,0.15)', color: '#061B0F', fontSize: '0.65rem', fontWeight: 700, padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Confirmed</span>
       </div>
       {/* Body */}
       <div style={{ display: 'flex', gap: 0 }}>
         <div style={{ flex: 1, padding: '20px 20px' }}>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-logo)', color: 'var(--text-primary)', marginBottom: 12 }}>{meetup?.title || 'Perenti Meetup'}</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-logo)', color: 'var(--text-primary)', marginBottom: 12 }}>{meetup?.title || 'EBC Meetup'}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
             <span>📅 {meetup?.date}</span>
             <span>⏰ {meetup?.time}</span>
@@ -44,7 +98,7 @@ function TicketStub({ ticket, meetup }) {
 // ── Checked-In Attendee Card (Ultra Mobile Friendly) ──────────────────────────
 function CheckedInAttendeeCard({ reservation }) {
   const initials = (reservation.user_name || reservation.user_email || '?').charAt(0).toUpperCase();
-  
+
   let answersObj = {};
   try {
     answersObj = JSON.parse(reservation.answers || '{}');
@@ -53,11 +107,11 @@ function CheckedInAttendeeCard({ reservation }) {
   }
 
   return (
-    <div style={{ 
-      background: 'var(--bg-elevated)', 
-      border: '1px solid var(--border)', 
-      borderRadius: 14, 
-      padding: '16px', 
+    <div style={{
+      background: 'var(--bg-elevated)',
+      border: '1px solid var(--border)',
+      borderRadius: 14,
+      padding: '16px',
       marginBottom: 12,
       display: 'flex',
       flexDirection: 'column',
@@ -220,6 +274,7 @@ function RegisterModal({ meetup, session, onClose, onSuccess }) {
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Your pass is below. Show the QR code at the venue entrance.</div>
               </div>
               <TicketStub ticket={ticket} meetup={meetup} />
+              <AttendeeBadgeQR ticket={ticket} />
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 <button onClick={() => window.print()} className="btn btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Print Pass</button>
                 <button onClick={onClose} className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Done</button>
@@ -299,19 +354,19 @@ function RegisterModal({ meetup, session, onClose, onSuccess }) {
 
               {/* Payment & Coupon Section */}
               <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Payment Summary</div>
-              
+
               <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
                 {/* Coupon Input */}
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                  <input 
-                    value={coupon} 
+                  <input
+                    value={coupon}
                     onChange={e => setCoupon(e.target.value)}
                     placeholder="Enter Coupon (e.g. ebc42)"
                     style={{ flex: 1, padding: '9px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.85rem', color: 'var(--text-primary)', outline: 'none' }}
                   />
-                  <button 
-                    type="button" 
-                    onClick={handleApplyCoupon} 
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
                     className="btn btn-secondary btn-sm"
                     style={{ padding: '0 16px', borderRadius: 8, fontSize: '0.8125rem' }}
                   >
@@ -495,8 +550,8 @@ export default function MeetupDetail() {
               <div className="meetup-info-cards" style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
                 {[
                   { icon: Calendar, label: 'Date', value: selected.date },
-                  { icon: Clock,    label: 'Time', value: selected.time },
-                  { icon: MapPin,   label: 'Venue', value: selected.venue },
+                  { icon: Clock, label: 'Time', value: selected.time },
+                  { icon: MapPin, label: 'Venue', value: selected.venue },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} style={{ flex: 1, minWidth: 180, display: 'flex', gap: 16, alignItems: 'center', padding: '16px', background: 'var(--bg-elevated)', borderRadius: 16, border: '1px solid var(--border)' }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -522,7 +577,7 @@ export default function MeetupDetail() {
               </h2>
               <div style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24 }}>
                 <p style={{ marginBottom: 12 }}>
-                  Welcome to the <strong style={{ color: 'var(--text-primary)' }}>Perenti Community</strong> — Hyderabad's premier network connecting founders, creators, engineers, operators, and startup builders.
+                  Welcome to the <strong style={{ color: 'var(--text-primary)' }}>EBC Community</strong> — Hyderabad's premier network connecting founders, creators, engineers, operators, and startup builders.
                 </p>
                 <p style={{ marginBottom: 16 }}>Our monthly meetups are outcome-driven professional gatherings designed to help you find co-founders, advisors, beta testers, and business partners.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -564,7 +619,7 @@ export default function MeetupDetail() {
 
               {/* Tabs for Checked-in and Registered */}
               <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 20, gap: 16 }}>
-                <button 
+                <button
                   onClick={() => setAttendeeTab('checked_in')}
                   style={{
                     background: 'none',
@@ -580,7 +635,7 @@ export default function MeetupDetail() {
                 >
                   Checked In ({checkedInReservations.length})
                 </button>
-                <button 
+                <button
                   onClick={() => setAttendeeTab('registered')}
                   style={{
                     background: 'none',
@@ -637,7 +692,7 @@ export default function MeetupDetail() {
           meetup={{ ...selected, remaining }}
           session={session}
           onClose={() => setShowModal(false)}
-          onSuccess={() => { setShowModal(false); loadReservations(); }}
+          onSuccess={() => { loadReservations(); }}
         />
       )}
     </>
