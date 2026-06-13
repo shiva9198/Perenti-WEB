@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Client, Account, ID } from 'appwrite';
+import { cachedFetch, cacheInvalidateAll } from './cache.js';
 
 // ── REST API (Render backend) ────────────────────────────────────────────────
 
@@ -47,19 +48,22 @@ export const getSession = async () => {
 export const logout = async () => {
   try {
     await account.deleteSession('current');
+    cacheInvalidateAll(); // clear cached data on logout
   } catch {}
 };
 
 // ── Members API ───────────────────────────────────────────────────────────────
 
 export const fetchMembers = async () => {
-  try {
-    const res = await apiClient.get('/members');
-    return Array.isArray(res.data) ? res.data : [];
-  } catch (err) {
-    console.error('fetchMembers error:', err);
-    return [];
-  }
+  return cachedFetch('members', async () => {
+    try {
+      const res = await apiClient.get('/members');
+      return Array.isArray(res.data) ? res.data : [];
+    } catch (err) {
+      console.error('fetchMembers error:', err);
+      return [];
+    }
+  });
 };
 
 export const getCurrentUser = async (user) => {
@@ -94,13 +98,15 @@ export const createMember = async (memberData) => {
 // ── Meetups API ───────────────────────────────────────────────────────────────
 
 export const fetchMeetups = async () => {
-  try {
-    const res = await apiClient.get('/meetups');
-    return Array.isArray(res.data) ? res.data : [];
-  } catch (err) {
-    console.error('fetchMeetups error:', err);
-    return [];
-  }
+  return cachedFetch('meetups', async () => {
+    try {
+      const res = await apiClient.get('/meetups');
+      return Array.isArray(res.data) ? res.data : [];
+    } catch (err) {
+      console.error('fetchMeetups error:', err);
+      return [];
+    }
+  });
 };
 
 export const fetchMeetup = async (meetupId) => {

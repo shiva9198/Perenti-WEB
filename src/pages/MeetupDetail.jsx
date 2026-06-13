@@ -213,9 +213,9 @@ function RegistrationCapsule({ meetup, status, remaining, onAction }) {
       position: 'fixed',
       bottom: 0, left: 0, right: 0,
       padding: '16px 20px calc(16px + env(safe-area-inset-bottom))',
-      background: 'linear-gradient(to top, var(--bg) 60%, transparent)',
+      background: 'linear-gradient(to top, var(--bg) 70%, transparent)',
       pointerEvents: 'none',
-      zIndex: 100,
+      zIndex: 150,
       display: 'flex',
       justifyContent: 'center'
     }}>

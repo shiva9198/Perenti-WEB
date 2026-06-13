@@ -20,6 +20,17 @@ import MeetupDetail from './pages/MeetupDetail';
 import AdminPanel from './pages/AdminPanel';
 import Registrations from './pages/Registrations';
 
+// ── Animated page wrapper ─────────────────────────────────────────────
+// The `key` is set at the call site so React fully unmounts+remounts
+// this component on every route change, retriggering the CSS animation.
+function PageTransition({ children }) {
+  return (
+    <div className="page-transition">
+      {children}
+    </div>
+  );
+}
+
 function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, currentUser }) {
   const location = useLocation();
   const showChrome = isLoggedIn && location.pathname !== '/';
@@ -39,7 +50,7 @@ function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, curren
     <div className="app-layout">
       <Sidebar onLogout={onLogout} theme={theme} toggleTheme={toggleTheme} currentUser={currentUser} />
 
-      <div style={{ flex: 1, minWidth: 0, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column' }}>
+      <div className="main-content-col">
         {/* Mobile Top Header */}
         <div className="mobile-header" style={{
           display: 'none', // Overridden in media queries to flex
@@ -155,21 +166,38 @@ export default function App() {
         />
       )}
       <MainLayout isLoggedIn={isLoggedIn} onLogout={logout} theme={theme} toggleTheme={toggleTheme} currentUser={currentUser}>
-        <Routes>
-          <Route path="/" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Landing onLogin={login} theme={theme} toggleTheme={toggleTheme} />} />
-          <Route path="/login" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Login onLogin={login} />} />
-          <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
-          <Route path="/directory" element={<ProtectedRoute><Directory /></ProtectedRoute>} />
-          <Route path="/meetups" element={<ProtectedRoute><Meetups /></ProtectedRoute>} />
-          <Route path="/meetups/:id" element={<ProtectedRoute><MeetupDetail /></ProtectedRoute>} />
-          <Route path="/registrations" element={<ProtectedRoute><Registrations currentUser={currentUser} /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminPanel session={currentUser} /></ProtectedRoute>} />
-          <Route path="/profile/me" element={<ProtectedRoute><MyProfile currentUser={currentUser} /></ProtectedRoute>} />
-          <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/settings" element={<ProtectedRoute><Settings onLogout={logout} currentUser={currentUser} /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AnimatedRoutesWrapper
+          isLoggedIn={isLoggedIn}
+          currentUser={currentUser}
+          ProtectedRoute={ProtectedRoute}
+          login={login}
+          logout={logout}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
       </MainLayout>
     </BrowserRouter>
+  );
+}
+
+function AnimatedRoutesWrapper({ isLoggedIn, currentUser, ProtectedRoute, login, logout, theme, toggleTheme }) {
+  const location = useLocation();
+  return (
+    <PageTransition key={location.pathname}>
+      <Routes location={location}>
+        <Route path="/" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Landing onLogin={login} theme={theme} toggleTheme={toggleTheme} />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/discover" replace /> : <Login onLogin={login} />} />
+        <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
+        <Route path="/directory" element={<ProtectedRoute><Directory /></ProtectedRoute>} />
+        <Route path="/meetups" element={<ProtectedRoute><Meetups /></ProtectedRoute>} />
+        <Route path="/meetups/:id" element={<ProtectedRoute><MeetupDetail /></ProtectedRoute>} />
+        <Route path="/registrations" element={<ProtectedRoute><Registrations currentUser={currentUser} /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminPanel session={currentUser} /></ProtectedRoute>} />
+        <Route path="/profile/me" element={<ProtectedRoute><MyProfile currentUser={currentUser} /></ProtectedRoute>} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/settings" element={<ProtectedRoute><Settings onLogout={logout} currentUser={currentUser} /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </PageTransition>
   );
 }

@@ -32,14 +32,6 @@ export default function Discover() {
     return 'Good evening';
   };
 
-  if (loading || members.length === 0) {
-    return (
-      <div className="main-feed" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ color: 'var(--text-secondary)' }}>Loading community...</div>
-      </div>
-    );
-  }
-
   // Choose the first active meetup as spotlight event
   const upcomingMeetup = meetups[0];
   const nearThem = members.filter(m => m.area && (m.area.includes('Jubilee Hills') || m.area.includes('HITEC City') || m.area.includes('Hyderabad')));
@@ -48,6 +40,45 @@ export default function Discover() {
   const founders = members.filter(m => m.tags && m.tags.includes('Founder'));
   const businessOwners = members.filter(m => m.tags && m.tags.includes('Business Owner'));
   const topContributors = members;
+
+  if (loading) {
+    return (
+      <div className="main-feed">
+        <div className="page-header">
+          <div className="page-header-inner">
+            <div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2 }}>{getGreeting()}</div>
+              <div className="page-title gradient-text">Discover</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 32 }}>
+          {/* Spotlight skeleton */}
+          <div className="skeleton skeleton-card" style={{ height: 220, width: '100%' }} />
+          {/* Member row skeleton */}
+          <div>
+            <div className="skeleton skeleton-title" style={{ width: 140, marginBottom: 16 }} />
+            <div style={{ display: 'flex', gap: 12, overflowX: 'hidden' }}>
+              {[...Array(4)].map((_, i) => (
+                <div key={i} style={{ flexShrink: 0, width: 160 }}>
+                  <div className="skeleton skeleton-card" style={{ height: 180 }} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Second row skeleton */}
+          <div>
+            <div className="skeleton skeleton-title" style={{ width: 180, marginBottom: 16 }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="skeleton skeleton-card" style={{ height: 72 }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="main-feed">

@@ -4,6 +4,7 @@ import { Calendar, MapPin, Clock, Ticket, CheckCircle, AlertCircle, MessageCircl
 import { Link } from 'react-router-dom';
 import CountdownTimer from '../components/CountdownTimer';
 import { ADMIN_WHATSAPP_NUMBER, buildWhatsAppUrl, buildRegistrationMessage } from '../config/whatsapp';
+import { cachedFetch } from '../services/cache.js';
 
 function AttendeeBadgeQR({ reservation }) {
   let reason = 'Networking';
@@ -64,7 +65,8 @@ export default function Registrations({ currentUser }) {
 
   const load = () => {
     if (currentUser?.email) {
-      fetchUserReservations(currentUser.email)
+      const cacheKey = `user_reservations_${currentUser.email}`;
+      cachedFetch(cacheKey, () => fetchUserReservations(currentUser.email))
         .then(res => {
           setReservations(Array.isArray(res) ? res : []);
           setLoading(false);
@@ -104,8 +106,42 @@ export default function Registrations({ currentUser }) {
 
   if (loading) {
     return (
-      <div className="main-feed" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div style={{ color: 'var(--text-secondary)' }}>Loading passes…</div>
+      <div className="main-feed">
+        {/* Header — renders instantly */}
+        <div className="page-header">
+          <div className="page-header-inner">
+            <div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.06em' }}>EBC Wallet</div>
+              <div className="page-title gradient-text">My Entry Passes</div>
+            </div>
+          </div>
+        </div>
+        {/* Skeleton pass cards */}
+        <div style={{ padding: '24px', maxWidth: 680, margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="skeleton-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, overflow: 'hidden' }}>
+              {/* Accent bar */}
+              <div className="skeleton" style={{ height: 6, width: '100%', borderRadius: 0 }} />
+              <div style={{ padding: '24px 28px', display: 'flex', gap: 20 }}>
+                {/* Left: event info */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                  <div className="skeleton skeleton-title" style={{ width: '70%' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                    <div className="skeleton skeleton-text" style={{ width: '55%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '45%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '60%' }} />
+                  </div>
+                </div>
+                {/* Right: QR placeholder */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div className="skeleton" style={{ width: 120, height: 120, borderRadius: 12 }} />
+                  <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

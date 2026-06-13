@@ -133,21 +133,23 @@
 /* ---- Reset ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
-
-html, body, #root {
-  height: 100dvh !important;
-  display: block !important;
-  overflow: hidden !important;
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
+  overflow-x: hidden;
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  overflow-x: hidden;
 }
 
 img, svg { display: block; max-width: 100%; }
@@ -173,10 +175,24 @@ h5 { font-size: 1rem; }
 /* ---- Layout ---- */
 .app-layout {
   display: flex;
-  height: 100dvh;
+  min-height: 100dvh;
   position: relative;
   max-width: 1440px;
   margin: 0 auto;
+}
+
+/* Landing / Login pages wrapper */
+.app-landing-layout {
+  min-height: 100dvh;
+}
+
+/* Inner column wrapper (mobile-header + main content) */
+.main-content-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
 }
 
 .sidebar {
@@ -197,12 +213,9 @@ h5 { font-size: 1rem; }
 .main-feed {
   flex: 1;
   min-width: 0;
-  min-height: 0;
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .right-panel {
@@ -1024,9 +1037,8 @@ h5 { font-size: 1rem; }
     padding-bottom: 90px !important; 
   }
 
-  /* Page layout — keep it as flex so the wrapper takes full height */
+  /* On mobile, app-layout stacks vertically and fills the flex root */
   .app-layout { 
-    display: flex; 
     flex-direction: column;
   }
 
@@ -1153,6 +1165,57 @@ h5 { font-size: 1rem; }
 }
 
 
+
+/* ---- Page Transitions ---- */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* The keyed wrapper that triggers on every route change */
+.page-transition {
+  display: block;
+  animation: pageEnter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Pass-through for .main-feed inside the transition wrapper */
+.page-transition > .main-feed {
+  flex: 1;
+}
+
+/* View Transitions API — for browsers that support it (Chrome 111+) */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root) {
+    animation: 180ms cubic-bezier(0.4, 0, 1, 1) both pageExit;
+  }
+  ::view-transition-new(root) {
+    animation: 240ms cubic-bezier(0.22, 1, 0.36, 1) both pageEnter;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition { animation: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
 
 /* ---- Animations ---- */
 @keyframes fadeInUp {
@@ -1284,3 +1347,31 @@ h5 { font-size: 1rem; }
     gap: 16px;
   }
 }
+
+/* ---- Skeleton Loader ---- */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-card) 50%,
+    var(--bg-elevated) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-text  { height: 14px; border-radius: 6px; }
+.skeleton-title { height: 22px; border-radius: 8px; }
+.skeleton-avatar { border-radius: 50%; flex-shrink: 0; }
+.skeleton-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
