@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
-import { fetchMeetups } from '../services/api';
+import { fetchMeetups, createSlug } from '../services/api';
 
 export default function Meetups() {
   const [meetups, setMeetups] = useState([]);
@@ -107,7 +107,7 @@ export default function Meetups() {
                   {group.items.map(meetup => (
                     <Link 
                       key={meetup.id} 
-                      to={`/meetups/${meetup.id}`} 
+                      to={`/meetups/${createSlug(meetup.title)}`} 
                       style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between',

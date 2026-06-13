@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserReservations } from '../services/api';
+import { fetchUserReservations, createSlug } from '../services/api';
 import { Calendar, MapPin, Clock, Ticket, CheckCircle, AlertCircle, MessageCircle, Clock3, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CountdownTimer from '../components/CountdownTimer';
@@ -215,10 +215,10 @@ export default function Registrations({ currentUser }) {
                   <div key={res.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{m?.title || 'EBC Meetup'}</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', margin: '0 0 12px', lineHeight: 1.5 }}>
-                        {isRejected ? 'Your registration was not approved. Please re-register if interested.' : 'This registration request expired before payment was confirmed.'}
-                      </p>
-                      {m?.id && <Link to={`/meetups/${m.id}`} className="btn btn-ghost btn-sm" style={{ padding: '4px 0', fontSize: '0.8rem' }}>Register Again →</Link>}
+                      <div style={{ marginTop: 'auto', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        <button onClick={() => openWhatsApp(res)} className="btn btn-secondary btn-sm" style={{ flex: 1, padding: '4px 0', fontSize: '0.8rem', background: 'var(--bg-hover)' }}>Contact Support</button>
+                        {m?.id && <Link to={`/meetups/${createSlug(m.title)}`} className="btn btn-ghost btn-sm" style={{ padding: '4px 0', fontSize: '0.8rem' }}>Register Again →</Link>}
+                      </div>
                     </div>
                     <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: 'rgba(242,87,48,0.1)', color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', flexShrink: 0 }}>
                       {isRejected ? 'Not Approved' : 'Expired'}
@@ -337,9 +337,9 @@ export default function Registrations({ currentUser }) {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: 24 }}>
-                        <Link to={`/meetups/${m.id}`} className="btn btn-ghost btn-sm" style={{ padding: '6px 0', fontSize: '0.8125rem' }}>
-                          View Event Details &rarr;
+                      <div style={{ padding: '0 24px 20px', display: 'flex', gap: 12 }}>
+                        <Link to={`/meetups/${createSlug(m.title)}`} className="btn btn-ghost btn-sm" style={{ padding: '6px 0', fontSize: '0.8125rem' }}>
+                          View Details →
                         </Link>
                       </div>
                     </div>

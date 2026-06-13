@@ -109,9 +109,25 @@ export const fetchMeetups = async () => {
   });
 };
 
-export const fetchMeetup = async (meetupId) => {
+export const createSlug = (title) => {
+  if (!title) return '';
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove non-word chars
+    .replace(/[\s_-]+/g, '-') // Swap spaces for hyphens
+    .replace(/^-+|-+$/g, ''); // Trim hyphens
+};
+
+export const fetchMeetup = async (idOrSlug) => {
   try {
-    const res = await apiClient.get(`/meetups/${meetupId}`);
+    // 1. Try to find the meetup by slug from the cached meetups list first
+    const allMeetups = await fetchMeetups();
+    const match = allMeetups.find(m => m.id === idOrSlug || createSlug(m.title) === idOrSlug);
+    if (match) return match;
+
+    // 2. Fallback to direct ID fetch if not found locally
+    const res = await apiClient.get(`/meetups/${idOrSlug}`);
     return res.data;
   } catch (err) {
     console.error('fetchMeetup error:', err);

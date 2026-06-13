@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Search, Bell, Star, ArrowRight, Home, Users, Calendar, MapPin } from 'lucide-react';
 import { LinkedinIcon } from '../components/Icons';
-import { fetchMembers, fetchMeetups } from '../services/api';
+import { fetchMembers, fetchMeetups, createSlug } from '../services/api';
 import Avatar from '../components/Avatar';
 import LottiePlayer from '../components/LottiePlayer';
 import { MemberCardVertical, MemberCardHorizontal } from '../components/MemberCard';
@@ -106,7 +106,7 @@ export default function Discover() {
         <div className="discover-spotlight-wrapper" style={{ padding: '24px 24px 0' }}>
           <div 
             className="spotlight-card"
-            onClick={() => upcomingMeetup ? navigate(`/meetups/${upcomingMeetup.id}`) : navigate('/meetups')}
+            onClick={() => upcomingMeetup ? navigate(`/meetups/${createSlug(upcomingMeetup.title)}`) : navigate('/meetups')}
             style={{
               transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s',
             }}

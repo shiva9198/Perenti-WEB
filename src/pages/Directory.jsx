@@ -33,8 +33,29 @@ export default function Directory() {
 
   if (loading) {
     return (
-      <div className="main-feed" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ color: 'var(--text-secondary)' }}>Loading directory...</div>
+      <div className="main-feed">
+        <div className="page-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div className="page-title">Directory</div>
+          </div>
+          <div className="skeleton skeleton-card" style={{ height: 42, marginBottom: 14 }} />
+          <div className="filter-bar" style={{ gap: 8 }}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="skeleton" style={{ width: 80, height: 32, borderRadius: 999 }} />
+            ))}
+          </div>
+        </div>
+        <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="skeleton-card" style={{ padding: 16, display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg-card)' }}>
+              <div className="skeleton skeleton-avatar" style={{ width: 44, height: 44 }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="skeleton skeleton-title" style={{ width: '60%' }} />
+                <div className="skeleton skeleton-text" style={{ width: '40%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -94,7 +115,7 @@ export default function Directory() {
             ))}
           </div>
         )}
-        <div style={{ height: 80 }} />
+        <div style={{ height: 'calc(96px + env(safe-area-inset-bottom, 0px))' }} />
       </div>
     </div>
   );
