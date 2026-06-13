@@ -383,13 +383,11 @@ function RegisterModal({ meetup, session, onClose, onSuccess, initialPendingReco
     };
 
     if (netAmount === 0) {
-      // ── Free path (coupon applied): existing direct confirmation flow ──────
+      // ── Free path (coupon applied): open pass instantly ──────
       setStep('submitting');
       try {
         const res = await createReservation(registrationData);
-        setTicket(res);
-        setStep('done');
-        onSuccess();
+        onSuccess({ directPass: true, ticket: res });
       } catch (err) {
         setError(err?.response?.data?.detail || err?.message || 'Registration failed. Please try again.');
         setStep('form');
@@ -1037,7 +1035,16 @@ export default function MeetupDetail() {
           meetup={{ ...selected, remaining }}
           session={session}
           onClose={() => setShowModal(false)}
-          onSuccess={() => { loadReservations(); loadUserReservation(); }}
+          onSuccess={(opts) => { 
+            loadReservations(); 
+            if (opts?.directPass && opts?.ticket) {
+              setUserReservation(opts.ticket);
+              setShowModal(false);
+              setShowPassModal(true);
+            } else {
+              loadUserReservation();
+            }
+          }}
           initialPendingRecord={userStatus === 'PENDING' ? userReservation : null}
         />
       )}
