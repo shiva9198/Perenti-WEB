@@ -100,7 +100,7 @@ export default function Directory() {
         </div>
       </div>
 
-      <div style={{ padding: '16px 24px' }}>
+      <div style={{ padding: '16px 0' }}>
         {filtered.length === 0 ? (
           <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
             <Users size={48} style={{ marginBottom: 16 }} />
