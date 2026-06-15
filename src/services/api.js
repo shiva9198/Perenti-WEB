@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Client, Account, ID } from 'appwrite';
-import { cachedFetch, cacheInvalidateAll } from './cache.js';
+import { cachedFetch, cacheInvalidateAll, cacheInvalidate } from './cache.js';
 
 // ── REST API (Render backend) ────────────────────────────────────────────────
 
@@ -88,11 +88,44 @@ export const getCurrentUser = async (user) => {
 export const createMember = async (memberData) => {
   try {
     const res = await apiClient.post('/members', memberData);
+    cacheInvalidate('members'); // Clear cache so directory refreshes
     return res.data;
   } catch (err) {
     console.error('createMember error:', err);
     throw err;
   }
+};
+
+export const updateMember = async (email, updateData) => {
+  if (!email) throw new Error('Email required to update member');
+  try {
+    const res = await apiClient.put(`/members/${encodeURIComponent(email)}`, updateData);
+    cacheInvalidate('members');
+    return res.data;
+  } catch (err) {
+    console.error('updateMember error:', err);
+    throw err;
+  }
+};
+
+export const isProfileComplete = (user) => {
+  if (!user) return false;
+  // Maximum information required fields (company is optional)
+  const required = ['name', 'profession', 'bio'];
+  for (const field of required) {
+    if (!user[field] || String(user[field]).trim() === '') return false;
+  }
+  // Location/area can be in either field
+  if ((!user.location || String(user.location).trim() === '') && 
+      (!user.area || String(user.area).trim() === '')) {
+    return false;
+  }
+  // Require at least one connection mode
+  if ((!user.linkedin || String(user.linkedin).trim() === '') && 
+      (!user.instagram || String(user.instagram).trim() === '')) {
+    return false;
+  }
+  return true;
 };
 
 // ── Meetups API ───────────────────────────────────────────────────────────────
