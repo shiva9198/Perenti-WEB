@@ -2,23 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchMeetups, fetchReservations } from '../services/api';
 import { CheckedInAttendeeCard, AttendeeRow } from '../components/EventDirectory';
 import { Lock, Radio } from 'lucide-react';
-
-function parseMeetupStart(dateStr, timeStr) {
-  try {
-    const cleanDate = dateStr.replace(/\b(\d+)(st|nd|rd|th)\b/g, '$1');
-    const startTimeStr = timeStr.split(/[-–]/)[0].trim();
-    const combinedStr = `${cleanDate} ${startTimeStr}`;
-    const parsedTime = Date.parse(combinedStr);
-    
-    if (isNaN(parsedTime)) {
-      return new Date(Date.now() - 1000); // Trigger event started immediately if parse fails
-    }
-    
-    return new Date(parsedTime);
-  } catch (e) {
-    return new Date(Date.now() - 1000); // fallback
-  }
-}
+import { parseMeetupTimes } from '../utils/dateHelpers';
 
 export default function Live({ currentUser }) {
   const [activeMeetup, setActiveMeetup] = useState(null);
@@ -35,7 +19,12 @@ export default function Live({ currentUser }) {
 
       try {
         const allMeetups = await fetchMeetups();
-        const active = allMeetups.find(m => m.is_active);
+        const active = allMeetups.find(m => {
+          if (!m.is_active) return false;
+          const { end } = parseMeetupTimes(m.date, m.time);
+          // Auto-close event when the event time is ended
+          return Date.now() <= end.getTime();
+        });
 
         if (!active) {
           setLoading(false);
@@ -86,7 +75,7 @@ export default function Live({ currentUser }) {
   }
 
   // Calculate Event Status
-  const eventStartTime = parseMeetupStart(activeMeetup.date, activeMeetup.time);
+  const { start: eventStartTime } = parseMeetupTimes(activeMeetup.date, activeMeetup.time);
   const timeLeft = eventStartTime.getTime() - now;
   const isEventStarted = timeLeft <= 0;
 

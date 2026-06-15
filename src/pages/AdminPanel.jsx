@@ -22,7 +22,7 @@ function StatCard({ label, value, color = 'var(--primary)' }) {
 
 function MeetupForm({ onSave, initial, onCancel }) {
   const [form, setForm] = useState(initial || {
-    title: '', description: '', date: '', time: '', venue: '', banner_url: '', capacity: 60, is_active: true
+    title: '', description: '', rawDate: '', startTime: '', endTime: '', venue: '', banner_url: '', capacity: 60, is_active: true
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -50,6 +50,25 @@ function MeetupForm({ onSave, initial, onCancel }) {
     }
   };
 
+  const getFormattedDate = (dateStr) => {
+    const [year, month, day] = dateStr.split('-');
+    const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+    const monthName = d.toLocaleDateString('en-US', { month: 'long' });
+    const dNum = parseInt(day);
+    const suffix = ["th", "st", "nd", "rd"][((dNum % 100) - 20) % 10] || ["th", "st", "nd", "rd"][dNum % 100] || "th";
+    return `${weekday}, ${monthName} ${dNum}${suffix} ${year}`;
+  };
+
+  const formatAMPM = (timeStr) => {
+    let [hours, minutes] = timeStr.split(':');
+    hours = parseInt(hours);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:${minutes} ${ampm}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -61,7 +80,16 @@ function MeetupForm({ onSave, initial, onCancel }) {
         setSaving(false);
         return;
       }
-      await apiClient.post('/meetups', { ...form, capacity: parseInt(form.capacity) || 60 });
+
+      const finalDate = form.rawDate ? getFormattedDate(form.rawDate) : form.date;
+      const finalTime = (form.startTime && form.endTime) ? `${formatAMPM(form.startTime)} – ${formatAMPM(form.endTime)} (IST)` : form.time;
+
+      await apiClient.post('/meetups', { 
+        ...form, 
+        date: finalDate, 
+        time: finalTime, 
+        capacity: parseInt(form.capacity) || 60 
+      });
       onSave();
     } catch (err) {
       setError(err?.response?.data?.detail || err?.message || 'Failed to save meetup.');
@@ -84,11 +112,15 @@ function MeetupForm({ onSave, initial, onCancel }) {
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Date *</label>
-          <input required value={form.date} onChange={e => set('date', e.target.value)} placeholder="Sunday, July 27th 2026" style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+          <input type="date" required value={form.rawDate} onChange={e => set('rawDate', e.target.value)} style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Time *</label>
-          <input required value={form.time} onChange={e => set('time', e.target.value)} placeholder="9:00 AM – 11:00 AM (IST)" style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+          <div style={{ display: 'flex', gap: 10 }}>
+            <input type="time" required value={form.startTime} onChange={e => set('startTime', e.target.value)} style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+            <span style={{ alignSelf: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600 }}>to</span>
+            <input type="time" required value={form.endTime} onChange={e => set('endTime', e.target.value)} style={inputSt} onFocus={e => e.target.style.borderColor = 'var(--primary)'} onBlur={e => e.target.style.borderColor = 'var(--border)'} />
+          </div>
         </div>
       </div>
 

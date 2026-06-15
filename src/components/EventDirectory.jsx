@@ -23,7 +23,8 @@ export function CheckedInAttendeeCard({ reservation }) {
         marginBottom: 12,
         display: 'flex',
         flexDirection: 'column',
-        gap: 12
+        gap: 12,
+        cursor: 'pointer'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
@@ -73,7 +74,7 @@ export function AttendeeRow({ reservation }) {
   const safeEmail = (reservation.user_email || '').trim();
   return (
     <Link to={`/profile/${encodeURIComponent(safeEmail)}`} state={{ reservation }} style={{ textDecoration: 'none', display: 'block' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
           background: 'var(--primary-glow)', border: '1px solid rgba(3,212,124,0.2)',
