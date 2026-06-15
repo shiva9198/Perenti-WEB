@@ -18,10 +18,23 @@ export default function Meetups() {
   }, []);
 
   // Sort and group meetups
+  // Sort and group meetups
   const sortedMeetups = [...meetups].sort((a, b) => {
+    const { end: endA } = parseMeetupTimes(a.date, a.time);
+    const { end: endB } = parseMeetupTimes(b.date, b.time);
+    const isEndedA = Date.now() > endA.getTime();
+    const isEndedB = Date.now() > endB.getTime();
+
+    if (isEndedA !== isEndedB) {
+      return isEndedA ? 1 : -1;
+    }
+
     const dateA = new Date((a.date || '').replace(/(st|nd|rd|th)/, ''));
     const dateB = new Date((b.date || '').replace(/(st|nd|rd|th)/, ''));
     if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+      if (isEndedA && isEndedB) {
+        return dateB.getTime() - dateA.getTime();
+      }
       return dateA.getTime() - dateB.getTime();
     }
     return 0;
@@ -63,32 +76,37 @@ export default function Meetups() {
           </div>
         ) : (
           <div style={{ position: 'relative', paddingLeft: 28, margin: '10px 0' }}>
-            {/* Timeline line */}
-            <div style={{
-              position: 'absolute',
-              top: 10,
-              bottom: 10,
-              left: 4,
-              width: 1,
-              background: 'var(--border-strong)',
-              zIndex: 1
-            }} />
-            
-            {grouped.map((group) => (
-              <div key={group.date} style={{ marginBottom: 36, position: 'relative', zIndex: 2 }}>
+            {grouped.map((group, index) => (
+              <div key={group.date} style={{ paddingBottom: 36, position: 'relative', zIndex: 2 }}>
+                {/* Segmented Timeline Line */}
+                {index < grouped.length - 1 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 16,
+                    bottom: -8, // Reaches exactly the center of the next dot
+                    left: -24, // Matches left: 4 relative to container paddingLeft: 28
+                    width: 1,
+                    background: 'var(--border-strong)',
+                    zIndex: 1
+                  }} />
+                )}
+
                 {/* Timeline Dot & Date Header */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, position: 'relative' }}>
                   {/* Bullet dot */}
                   <div style={{
                     position: 'absolute',
                     left: -28,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
                     width: 7,
                     height: 7,
                     borderRadius: '50%',
                     background: 'var(--primary)',
                     border: '2px solid var(--bg)',
                     boxShadow: '0 0 0 1px var(--border-strong)',
-                    marginLeft: 1
+                    marginLeft: 1,
+                    zIndex: 2
                   }} />
                   
                   <div style={{ 
