@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { fetchMeetups, createSlug } from '../services/api';
+import { parseMeetupTimes } from '../utils/dateHelpers';
+import CompletedStamp from '../components/CompletedStamp';
 
 export default function Meetups() {
   const [meetups, setMeetups] = useState([]);
@@ -104,60 +106,47 @@ export default function Meetups() {
 
                 {/* Event Cards */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingLeft: 8 }}>
-                  {group.items.map(meetup => (
-                    <Link 
+                  {group.items.map(meetup => {
+                    const { end } = parseMeetupTimes(meetup.date, meetup.time);
+                    const isEnded = Date.now() > end.getTime();
+                    
+                    return (
+                      <Link 
                       key={meetup.id} 
                       to={`/meetups/${createSlug(meetup.title)}`} 
                       style={{ 
+                        position: 'relative',
                         display: 'flex', 
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        background: 'var(--bg-card)', 
-                        border: '1px solid var(--border)', 
+                        background: isEnded ? 'transparent' : 'var(--bg-card)', 
+                        border: `1px solid ${isEnded ? 'var(--border-medium)' : 'var(--border)'}`, 
                         borderRadius: 18, 
                         padding: '20px 24px', 
                         transition: 'transform 0.2s, box-shadow 0.2s, background-color 0.2s', 
+                        transform: 'translateY(0)',
+                        boxShadow: isEnded ? 'none' : '0 4px 20px rgba(0,0,0,0.04)',
+                        opacity: isEnded ? 0.75 : 1,
+                        gap: 24,
                         cursor: 'pointer', 
-                        textDecoration: 'none',
-                        gap: 20
+                        textDecoration: 'none'
                       }}
-                      onMouseEnter={e => { 
-                        e.currentTarget.style.transform = 'translateY(-1px)'; 
-                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                        e.currentTarget.style.background = 'var(--bg-elevated)';
+                      onMouseEnter={(e) => {
+                        if (!isEnded) {
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.08)';
+                          e.currentTarget.style.borderColor = 'var(--border-strong)';
+                        }
                       }}
-                      onMouseLeave={e => { 
-                        e.currentTarget.style.transform = 'none'; 
-                        e.currentTarget.style.boxShadow = 'none'; 
-                        e.currentTarget.style.background = 'var(--bg-card)';
+                      onMouseLeave={(e) => {
+                        if (!isEnded) {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04)';
+                          e.currentTarget.style.borderColor = 'var(--border)';
+                        }
                       }}
                     >
-                      {/* Left: Content */}
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
-                          {meetup.time}
-                        </div>
-                        
-                        <h3 style={{ 
-                          fontFamily: 'var(--font-display)', 
-                          fontSize: '1.25rem', 
-                          fontWeight: 600, 
-                          color: 'var(--text-primary)', 
-                          marginBottom: 8, 
-                          lineHeight: 1.25 
-                        }}>
-                          {meetup.title}
-                        </h3>
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                          <MapPin size={14} style={{ flexShrink: 0 }} />
-                          <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                            {meetup.venue}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Right: Small Poster Image */}
+                      {/* Left: Small Poster Image */}
                       {meetup.banner_url && (
                         <div style={{ 
                           width: 80, 
@@ -166,17 +155,75 @@ export default function Meetups() {
                           overflow: 'hidden', 
                           flexShrink: 0,
                           border: '1px solid var(--border-medium)',
-                          background: 'var(--bg-elevated)'
+                          background: 'var(--bg-elevated)',
+                          position: 'relative',
+                          zIndex: 1
                         }}>
                           <img 
                             src={meetup.banner_url} 
                             alt={meetup.title} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', filter: isEnded ? 'grayscale(100%) opacity(60%)' : 'none' }} 
                           />
                         </div>
                       )}
+
+                      {/* Right: Content */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+                          {meetup.time} {isEnded && <span style={{ color: '#22c55e', marginLeft: 4 }}>| COMPLETED</span>}
+                        </div>
+                        
+                        <h3 style={{ 
+                          fontFamily: 'var(--font-display)', 
+                          fontSize: '1.25rem', 
+                          fontWeight: 600, 
+                          color: isEnded ? 'var(--text-secondary)' : 'var(--text-primary)', 
+                          marginBottom: 8, 
+                          lineHeight: 1.25 
+                        }}>
+                          {meetup.title}
+                        </h3>
+                        
+                        <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', gap: 6, color: isEnded ? 'var(--text-tertiary)' : 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
+                          <MapPin size={16} />
+                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {meetup.venue}
+                          </span>
+                          
+                          {/* Absolutely positioned 'Completed' text perfectly aligned with location baseline, perfectly centered under the Orb */}
+                          {isEnded && (
+                            <span style={{
+                              position: 'absolute',
+                              right: '-104px', // 24px gap + 80px badge width
+                              width: '80px',
+                              textAlign: 'center',
+                              fontSize: '0.85rem',
+                              fontWeight: 600,
+                              color: '#22c55e',
+                              fontFamily: 'var(--font-sans)',
+                            }}>
+                              Completed
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Completed Stamp (Orb only) */}
+                      {isEnded && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          width: 80,
+                          zIndex: 5,
+                          transform: 'translateY(-10px)' // Nudge upwards for visual balance
+                        }}>
+                          <CompletedStamp size={76} hideText={true} />
+                        </div>
+                      )}
                     </Link>
-                  ))}
+                  )})}
                 </div>
               </div>
             ))}

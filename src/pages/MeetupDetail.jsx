@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Users, Share2, Check, X, ChevronDown, ChevronUp, AlertCircle, ChevronLeft, MessageCircle, Clock3 } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Share2, Check, X, ChevronDown, ChevronUp, AlertCircle, ChevronLeft, MessageCircle, Clock3, CheckCircle } from 'lucide-react';
 import Avatar from '../components/Avatar';
 import CountdownTimer from '../components/CountdownTimer';
 import { fetchMeetup, fetchReservations, createReservation, getSession, createPendingReservation, checkExistingPending, fetchUserReservations } from '../services/api';
 import { ADMIN_WHATSAPP_NUMBER, buildWhatsAppUrl, buildRegistrationMessage } from '../config/whatsapp';
 import EventDirectory from '../components/EventDirectory';
-
-// (Removed AttendeeBadgeQR and TicketStub — replaced by PassModal)
+import { parseMeetupTimes } from '../utils/dateHelpers';
+import CompletedStamp from '../components/CompletedStamp';
 
 // ── Pass Modal (Premium Digital Pass) ─────────────────────────────────────────
 function PassModal({ ticket, meetup, onClose }) {
@@ -132,6 +132,11 @@ function RegistrationCapsule({ meetup, status, remaining, onAction, session }) {
     btnBg = 'var(--bg-elevated)';
     btnColor = 'var(--text-tertiary)';
     disabled = true;
+  } else if (status === 'EVENT_ENDED') {
+    btnText = 'Event Completed';
+    btnBg = 'var(--bg-elevated)';
+    btnColor = 'var(--text-tertiary)';
+    disabled = true;
   } else if (status === 'PENDING') {
     btnText = 'Pending Approval';
     btnBg = 'rgba(255,113,1,0.15)';
@@ -148,10 +153,17 @@ function RegistrationCapsule({ meetup, status, remaining, onAction, session }) {
   }
 
   if (!session) {
-    btnText = 'Sign in to Book Pass';
-    btnBg = 'var(--bg-elevated)';
-    btnColor = 'var(--text-primary)';
-    disabled = false;
+    if (status === 'EVENT_ENDED') {
+      btnText = 'Event Completed';
+      btnBg = 'var(--bg-elevated)';
+      btnColor = 'var(--text-tertiary)';
+      disabled = true;
+    } else {
+      btnText = 'Sign in to Book Pass';
+      btnBg = 'var(--bg-elevated)';
+      btnColor = 'var(--text-primary)';
+      disabled = false;
+    }
   }
 
   // Portal to document.body so position:fixed is not broken
@@ -684,6 +696,14 @@ export default function MeetupDetail() {
     userStatus = 'EVENT_FULL';
   }
 
+  const { end: meetupEnd } = selected ? parseMeetupTimes(selected.date, selected.time) : { end: new Date(Date.now() + 100000) };
+  const isMeetupEnded = selected && Date.now() > meetupEnd.getTime();
+
+  // Check if event ended for registration capsule status
+  if (isMeetupEnded && userStatus !== 'APPROVED') {
+    userStatus = 'EVENT_ENDED';
+  }
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -759,7 +779,18 @@ export default function MeetupDetail() {
         <div style={{ padding: '24px' }}>
 
           {/* Event Banner */}
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, marginBottom: 24, padding: '24px', display: 'flex', gap: '36px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ position: 'relative', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, marginBottom: 24, padding: '24px', display: 'flex', gap: '36px', flexWrap: 'wrap', alignItems: 'center' }}>
+            {isMeetupEnded && (
+               <CompletedStamp 
+                 size={100}
+                 style={{
+                   position: 'absolute',
+                   top: 24,
+                   right: 32,
+                   transform: 'rotate(10deg)'
+                 }}
+               />
+            )}
             {/* Banner image if available */}
             {selected.banner_url && (
               <img src={selected.banner_url} alt={selected.title} style={{ width: '100%', maxWidth: '340px', borderRadius: 16, objectFit: 'contain', flexShrink: 0 }} />

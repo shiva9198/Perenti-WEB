@@ -4,8 +4,10 @@ import { Sun, Moon, LogOut } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import RightPanel from './components/RightPanel';
 import MobileNav from './components/MobileNav';
-import { getSession, logout as appwriteLogout, getCurrentUser } from './services/api';
+import { getSession, logout as appwriteLogout, getCurrentUser, isProfileComplete, fetchUserReservations } from './services/api';
 import OnboardingModal from './components/OnboardingModal';
+import EditProfileModal from './components/EditProfileModal';
+import ProfileCompletionBanner from './components/ProfileCompletionBanner';
 
 // Pages
 import Landing from './pages/Landing';
@@ -113,6 +115,10 @@ function MainLayout({ children, isLoggedIn, onLogout, theme, toggleTheme, curren
           </div>
         </div>
 
+        {isLoggedIn && currentUser && !currentUser.needsOnboarding && !isProfileComplete(currentUser) && (
+          <ProfileCompletionBanner onCompleteClick={() => window.dispatchEvent(new CustomEvent('open-edit-profile'))} />
+        )}
+
         {children}
       </div>
 
@@ -129,6 +135,13 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+
+  useEffect(() => {
+    const handleOpenEdit = () => setShowEditProfileModal(true);
+    window.addEventListener('open-edit-profile', handleOpenEdit);
+    return () => window.removeEventListener('open-edit-profile', handleOpenEdit);
+  }, []);
 
   const [theme, setTheme] = useState(() => localStorage.getItem('ebc_theme') || 'light');
 
@@ -139,13 +152,17 @@ export default function App() {
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
-  // On mount: check Appwrite session
+  const [userReservationsCount, setUserReservationsCount] = useState(0);
+
   useEffect(() => {
     getSession().then(user => {
       if (user) {
         setIsLoggedIn(true);
         // Also try to match to a member profile by email
         getCurrentUser(user).then(setCurrentUser);
+        fetchUserReservations(user.email).then(reservations => {
+          setUserReservationsCount(reservations.length);
+        });
       }
       setAuthLoading(false);
     });
@@ -154,6 +171,9 @@ export default function App() {
   const login = (user) => {
     setIsLoggedIn(true);
     getCurrentUser(user).then(setCurrentUser);
+    fetchUserReservations(user.email).then(reservations => {
+      setUserReservationsCount(reservations.length);
+    });
   };
 
   const logout = async () => {
@@ -168,6 +188,8 @@ export default function App() {
     if (!isLoggedIn) return <Navigate to="/login" replace />;
     return children;
   };
+
+  const isMandatoryCompletion = currentUser && !currentUser.needsOnboarding && userReservationsCount > 2 && !isProfileComplete(currentUser);
 
   if (authLoading) {
     return (
@@ -186,6 +208,17 @@ export default function App() {
         <OnboardingModal 
           user={currentUser} 
           onComplete={(profile) => setCurrentUser(profile)} 
+        />
+      )}
+      {((showEditProfileModal && currentUser) || isMandatoryCompletion) && !currentUser?.needsOnboarding && (
+        <EditProfileModal
+          user={currentUser}
+          isMandatory={isMandatoryCompletion}
+          onClose={() => setShowEditProfileModal(false)}
+          onComplete={(profile) => {
+            setCurrentUser(profile);
+            setShowEditProfileModal(false);
+          }}
         />
       )}
       <MainLayout isLoggedIn={isLoggedIn} onLogout={logout} theme={theme} toggleTheme={toggleTheme} currentUser={currentUser}>

@@ -12,7 +12,7 @@ export default function MyProfile({ currentUser }) {
       <div className="page-header">
         <div className="page-header-inner">
           <div className="page-title">My Profile</div>
-          <button className="btn btn-secondary btn-sm">
+          <button className="btn btn-secondary btn-sm" onClick={() => window.dispatchEvent(new CustomEvent('open-edit-profile'))}>
             <Shield size={14} /> Edit Profile
           </button>
         </div>
@@ -33,7 +33,7 @@ export default function MyProfile({ currentUser }) {
           </div>
 
           <div className="profile-actions">
-            <button className="btn btn-primary">
+            <button className="btn btn-primary" onClick={() => window.dispatchEvent(new CustomEvent('open-edit-profile'))}>
               <TrendingUp size={16} /> Complete Your Profile
             </button>
           </div>
