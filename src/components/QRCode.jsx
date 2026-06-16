@@ -3,7 +3,7 @@
  * No external API calls. Uses canvas to render QR codes instantly.
  * Based on a minimal Reed-Solomon QR encoder (Mode: byte, ECC: M).
  */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 // ─── Tiny QR encoder (byte mode, ECC level M) ────────────────────────────────
 // Adapted from public-domain QR JS implementations
@@ -57,10 +57,10 @@ function rsEncode(data, degree) {
 
 // Version/ECC tables (version 1–4, ECC level M)
 const QR_ECC_M = {
-  1:  { total: 26,  data: 16, ec: 10, blocks: 1 },
-  2:  { total: 44,  data: 28, ec: 16, blocks: 1 },
-  3:  { total: 70,  data: 44, ec: 26, blocks: 2 },
-  4:  { total: 100, data: 64, ec: 36, blocks: 2 },
+  1: { total: 26, data: 16, ec: 10, blocks: 1 },
+  2: { total: 44, data: 28, ec: 16, blocks: 1 },
+  3: { total: 70, data: 44, ec: 26, blocks: 2 },
+  4: { total: 100, data: 64, ec: 36, blocks: 2 },
 };
 
 function getVersion(byteLen) {
@@ -70,20 +70,26 @@ function getVersion(byteLen) {
   return { version: 4, ...QR_ECC_M[4] };
 }
 
-const ALPHANUMERIC_CHARSET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+const ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 
 class BitStream {
-  constructor() { this.data = []; this.bits = 0; this.count = 0; }
+  constructor() {
+    this.data = [];
+    this.bits = 0;
+    this.count = 0;
+  }
   push(val, len) {
     for (let i = len - 1; i >= 0; i--) {
       if (this.count % 8 === 0) this.data.push(0);
-      if ((val >> i) & 1) this.data[this.data.length - 1] |= 1 << (7 - (this.count % 8));
+      if ((val >> i) & 1)
+        this.data[this.data.length - 1] |= 1 << (7 - (this.count % 8));
       this.count++;
     }
   }
   pad(total) {
-    const pads = [0xEC, 0x11];
-    while (this.data.length < total) this.data.push(pads[this.data.length % 2 === 0 ? 0 : 1] ?? 0xEC);
+    const pads = [0xec, 0x11];
+    while (this.data.length < total)
+      this.data.push(pads[this.data.length % 2 === 0 ? 0 : 1] ?? 0xec);
     return this.data.slice(0, total);
   }
 }
@@ -91,10 +97,10 @@ class BitStream {
 function encodeData(text, info) {
   const bytes = new TextEncoder().encode(text);
   const bs = new BitStream();
-  bs.push(0b0100, 4);         // byte mode
-  bs.push(bytes.length, 8);  // character count
+  bs.push(0b0100, 4); // byte mode
+  bs.push(bytes.length, 8); // character count
   for (const b of bytes) bs.push(b, 8);
-  bs.push(0, 4);             // terminator
+  bs.push(0, 4); // terminator
   const padded = bs.pad(info.data);
   const ecBytes = info.ec / info.blocks;
   const result = [];
@@ -116,7 +122,8 @@ function makeMatrix(version) {
   const setFinderPattern = (r, c) => {
     for (let dr = -1; dr <= 7; dr++) {
       for (let dc = -1; dc <= 7; dc++) {
-        const nr = r + dr, nc = c + dc;
+        const nr = r + dr,
+          nc = c + dc;
         if (nr < 0 || nr >= size || nc < 0 || nc >= size) continue;
         const inBox = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6;
         const isBorder = dr === 0 || dr === 6 || dc === 0 || dc === 6;
@@ -166,12 +173,38 @@ function placeFormatInfo(m, mask, size) {
   fmt = ((fmtData << 10) | fmt) ^ 0b101010000010010;
 
   const positions = [
-    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
-    [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],
+    [8, 0],
+    [8, 1],
+    [8, 2],
+    [8, 3],
+    [8, 4],
+    [8, 5],
+    [8, 7],
+    [8, 8],
+    [7, 8],
+    [5, 8],
+    [4, 8],
+    [3, 8],
+    [2, 8],
+    [1, 8],
+    [0, 8],
   ];
   const positions2 = [
-    [size-1,8],[size-2,8],[size-3,8],[size-4,8],[size-5,8],[size-6,8],[size-7,8],
-    [8,size-8],[8,size-7],[8,size-6],[8,size-5],[8,size-4],[8,size-3],[8,size-2],[8,size-1],
+    [size - 1, 8],
+    [size - 2, 8],
+    [size - 3, 8],
+    [size - 4, 8],
+    [size - 5, 8],
+    [size - 6, 8],
+    [size - 7, 8],
+    [8, size - 8],
+    [8, size - 7],
+    [8, size - 6],
+    [8, size - 5],
+    [8, size - 4],
+    [8, size - 3],
+    [8, size - 2],
+    [8, size - 1],
   ];
 
   for (let i = 0; i < 15; i++) {
@@ -183,14 +216,22 @@ function placeFormatInfo(m, mask, size) {
 
 function maskFn(pattern, r, c) {
   switch (pattern) {
-    case 0: return (r + c) % 2 === 0;
-    case 1: return r % 2 === 0;
-    case 2: return c % 3 === 0;
-    case 3: return (r + c) % 3 === 0;
-    case 4: return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
-    case 5: return (r * c) % 2 + (r * c) % 3 === 0;
-    case 6: return ((r * c) % 2 + (r * c) % 3) % 2 === 0;
-    case 7: return ((r + c) % 2 + (r * c) % 3) % 2 === 0;
+    case 0:
+      return (r + c) % 2 === 0;
+    case 1:
+      return r % 2 === 0;
+    case 2:
+      return c % 3 === 0;
+    case 3:
+      return (r + c) % 3 === 0;
+    case 4:
+      return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
+    case 5:
+      return ((r * c) % 2) + ((r * c) % 3) === 0;
+    case 6:
+      return (((r * c) % 2) + ((r * c) % 3)) % 2 === 0;
+    case 7:
+      return (((r + c) % 2) + ((r * c) % 3)) % 2 === 0;
   }
 }
 
@@ -214,7 +255,8 @@ function buildQR(text) {
         if (base[r][col] !== null) continue;
         const byteIdx = Math.floor(bitIdx / 8);
         const bitPos = 7 - (bitIdx % 8);
-        base[r][col] = byteIdx < dataBits.length ? (dataBits[byteIdx] >> bitPos) & 1 : 0;
+        base[r][col] =
+          byteIdx < dataBits.length ? (dataBits[byteIdx] >> bitPos) & 1 : 0;
         bitIdx++;
       }
     }
@@ -223,10 +265,12 @@ function buildQR(text) {
 
   // Try mask 0 (checkerboard) — good default
   const mask = 0;
-  const m = base.map((row, r) => row.map((cell, c) => {
-    if (cell === null) return 0;
-    return cell ^ (base[r][c] === null ? 0 : maskFn(mask, r, c) ? 1 : 0);
-  }));
+  const m = base.map((row, r) =>
+    row.map((cell, c) => {
+      if (cell === null) return 0;
+      return cell ^ (base[r][c] === null ? 0 : maskFn(mask, r, c) ? 1 : 0);
+    }),
+  );
 
   // Re-apply fixed patterns (they should not be masked)
   const fixed = makeMatrix(version);
@@ -245,8 +289,8 @@ function buildQR(text) {
 export default function QRCode({
   value,
   size = 200,
-  fgColor = '#000000',
-  bgColor = '#ffffff',
+  fgColor = "#000000",
+  bgColor = "#ffffff",
   quietZone = 4,
   style,
   className,
@@ -260,12 +304,12 @@ export default function QRCode({
     try {
       qr = buildQR(String(value));
     } catch (e) {
-      console.error('QR generation failed:', e);
+      console.error("QR generation failed:", e);
       return;
     }
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const { matrix, size: moduleCount } = qr;
     const moduleSize = Math.floor(size / (moduleCount + quietZone * 2));
     const totalSize = (moduleCount + quietZone * 2) * moduleSize;
@@ -298,7 +342,7 @@ export default function QRCode({
       ref={canvasRef}
       width={size}
       height={size}
-      style={{ imageRendering: 'pixelated', ...style }}
+      style={{ imageRendering: "pixelated", ...style }}
       className={className}
       aria-label={`QR code for ${value}`}
     />
