@@ -14,7 +14,7 @@ export default function EditProfileModal({
     company: user?.company || "",
     location: user?.location || user?.area || "",
     bio: user?.bio || "",
-    linkedin: user?.linkedin || "",
+    linkedin: user?.linkedin || user?.linkedIn || "",
     instagram: user?.instagram || "",
   });
   const [loading, setLoading] = useState(false);

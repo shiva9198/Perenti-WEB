@@ -597,14 +597,15 @@ function MeetupAdminCard({ meetup, onRefresh, onScanClick }) {
   }
 
   const totalAttendees = reservations.reduce(
-    (s, r) => s + (r.quantity || 1),
+    (s, r) => (r.status === "rejected" || r.ticket_id === "REJECTED") ? s : s + (r.quantity || 1),
     0,
   );
 
   const loadReservations = () => {
-    fetchReservations(meetup.id).then((r) =>
-      setReservations(Array.isArray(r) ? r : []),
-    );
+    fetchReservations(meetup.id).then((r) => {
+      const all = Array.isArray(r) ? r : [];
+      setReservations(all.filter(res => res.status !== "rejected" && res.ticket_id !== "REJECTED"));
+    });
   };
 
   useEffect(() => {

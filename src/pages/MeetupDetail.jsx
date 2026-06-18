@@ -629,7 +629,6 @@ function RegisterModal({
         const res = await createPendingReservation(registrationData);
         setPendingRecord(res);
         setStep("pending");
-        openWhatsApp(res);
         onSuccess(); // refresh attendee count to reflect the hold
       } catch (err) {
         setError(
@@ -660,27 +659,19 @@ function RegisterModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "rgba(6,27,15,0.7)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        background: "var(--bg-card)",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       <div
         style={{
-          background: "var(--bg-card)",
-          borderRadius: 20,
           width: "100%",
-          maxWidth: 520,
-          maxHeight: "90dvh",
-          overflow: "auto",
-          border: "1px solid var(--border-medium)",
-          boxShadow: "var(--shadow-lg)",
+          maxWidth: 640,
+          minHeight: "100dvh",
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Modal Header */}
@@ -1220,7 +1211,7 @@ function RegisterModal({
                   className="btn btn-secondary"
                   style={{ width: "100%", justifyContent: "center" }}
                 >
-                  Close
+                  I've sent the payment manually
                 </button>
               </div>
             )}
@@ -1859,10 +1850,20 @@ export default function MeetupDetail() {
   const loadUserReservation = useCallback(async () => {
     if (!selected?.id || !session?.email) return;
     const allUserRes = await fetchUserReservations(session.email);
-    const eventRes = allUserRes.find(
+    
+    // Get all reservations for this specific event
+    const eventReservations = allUserRes.filter(
       (r) => r.meetup_id === selected.id || r.meetup?.id === selected.id,
     );
-    setUserReservation(eventRes || null);
+    
+    // Sort by created_at descending (newest first)
+    eventReservations.sort((a, b) => {
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return timeB - timeA;
+    });
+
+    setUserReservation(eventReservations[0] || null);
   }, [selected, session]);
 
   useEffect(() => {
@@ -1874,7 +1875,7 @@ export default function MeetupDetail() {
   }, [loadUserReservation]);
 
   const totalAttendees = reservations.reduce(
-    (sum, r) => sum + (r.quantity || 1),
+    (sum, r) => (r.status === "rejected" || r.ticket_id === "REJECTED") ? sum : sum + (r.quantity || 1),
     0,
   );
   const remaining = selected

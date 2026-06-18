@@ -137,8 +137,9 @@ export const isProfileComplete = (user) => {
     return false;
   }
   // Require at least one connection mode
+  const linkedinVal = user.linkedin || user.linkedIn;
   if (
-    (!user.linkedin || String(user.linkedin).trim() === "") &&
+    (!linkedinVal || String(linkedinVal).trim() === "") &&
     (!user.instagram || String(user.instagram).trim() === "")
   ) {
     return false;
